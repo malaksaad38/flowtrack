@@ -23,8 +23,8 @@ async function getDashboardData(userId: string) {
     orderBy: { date: "desc" },
   });
 
-  const total = expenses.reduce((s, e) => s + e.amount, 0);
-  const largest = expenses.length ? Math.max(...expenses.map((e) => e.amount)) : 0;
+  const total = expenses.reduce((s: number, e: { amount: number }) => s + e.amount, 0);
+  const largest = expenses.length ? Math.max(...expenses.map((e: { amount: number }) => e.amount)) : 0;
   const count = expenses.length;
 
   // Category totals
