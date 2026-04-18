@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
 import { prisma } from "@/db/prisma";
 import { signToken } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "An account with this email already exists." }, { status: 409 });
     }
 
+    const bcrypt = (await import("bcryptjs")).default;
     const hashed = await bcrypt.hash(password, 12);
     const user = await prisma.user.create({ data: { email: normalizedEmail, password: hashed } });
 

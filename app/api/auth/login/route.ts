@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
 import { prisma } from "@/db/prisma";
 import { signToken } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid email or password." }, { status: 401 });
     }
 
+    const bcrypt = (await import("bcryptjs")).default;
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) {
       return NextResponse.json({ error: "Invalid email or password." }, { status: 401 });
