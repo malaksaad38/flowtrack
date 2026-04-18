@@ -18,12 +18,13 @@ async function getDashboardData(userId: string) {
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
-  const expenses = await prisma.expense.findMany({
-    where: { userId, date: { gte: monthStart, lt: monthEnd } },
-    orderBy: { date: "desc" },
-  });
+    const expenses: { id: string; amount: number; category: string; note: string | null; date: Date }[] =
+        await prisma.expense.findMany({
+            where: { userId, date: { gte: monthStart, lt: monthEnd } },
+            orderBy: { date: "desc" },
+        });
 
-  const total = expenses.reduce((s: number, e: { amount: number }) => s + e.amount, 0);
+    const total = expenses.reduce((s: number, e) => s + e.amount, 0);
   const largest = expenses.length ? Math.max(...expenses.map((e: { amount: number }) => e.amount)) : 0;
   const count = expenses.length;
 
