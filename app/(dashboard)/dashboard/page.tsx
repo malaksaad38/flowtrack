@@ -14,48 +14,43 @@ export const metadata = {
 };
 
 async function getDashboardData(userId: string) {
-  const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
-    const expenses: { id: string; amount: number; category: string; note: string | null; date: Date }[] =
-        await prisma.expense.findMany({
-            where: { userId, date: { gte: monthStart, lt: monthEnd } },
-            orderBy: { date: "desc" },
-        });
+    const expenses = await prisma.expense.findMany({
+        where: { userId, date: { gte: monthStart, lt: monthEnd } },
+        orderBy: { date: "desc" },
+    });
 
-    const total = expenses.reduce((s: number, e) => s + e.amount, 0);
-  const largest = expenses.length ? Math.max(...expenses.map((e: { amount: number }) => e.amount)) : 0;
-  const count = expenses.length;
+    type Expense = (typeof expenses)[number];
 
-  // Category totals
-  const categoryMap: Record<string, number> = {};
-  for (const e of expenses) {
-    categoryMap[e.category] = (categoryMap[e.category] ?? 0) + e.amount;
-  }
-  const topCategory = Object.entries(categoryMap).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "—";
+    const total = expenses.reduce((s: number, e: Expense) => s + e.amount, 0);
+    const largest = expenses.length ? Math.max(...expenses.map((e: Expense) => e.amount)) : 0;
+    const count = expenses.length;
 
-  // Daily bar chart
-  const daysInMonth = monthEnd.getDate() - 1 || new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-  const dailyMap: Record<number, number> = {};
-  for (const e of expenses) {
-    const day = new Date(e.date).getDate();
-    dailyMap[day] = (dailyMap[day] ?? 0) + e.amount;
-  }
-  const barData = Array.from({ length: daysInMonth }, (_, i) => ({
-    label: String(i + 1),
-    value: dailyMap[i + 1] ?? 0,
-  }));
+    const categoryMap: Record<string, number> = {};
+    for (const e of expenses) {
+        categoryMap[e.category] = (categoryMap[e.category] ?? 0) + e.amount;
+    }
+    const topCategory = Object.entries(categoryMap).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "—";
 
-  // Donut chart
-  const donutData = Object.entries(categoryMap).map(([label, value]) => ({ label, value }));
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const dailyMap: Record<number, number> = {};
+    for (const e of expenses) {
+        const day = new Date(e.date).getDate();
+        dailyMap[day] = (dailyMap[day] ?? 0) + e.amount;
+    }
+    const barData = Array.from({ length: daysInMonth }, (_, i) => ({
+        label: String(i + 1),
+        value: dailyMap[i + 1] ?? 0,
+    }));
 
-  // Recent 5
-  const recent = expenses.slice(0, 5);
+    const donutData = Object.entries(categoryMap).map(([label, value]) => ({ label, value }));
+    const recent = expenses.slice(0, 5);
 
-  return { total, largest, count, topCategory, barData, donutData, recent };
+    return { total, largest, count, topCategory, barData, donutData, recent };
 }
-
 function fmt(n: number) {
   return new Intl.NumberFormat("en-PK", {
     style: "currency",
