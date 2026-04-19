@@ -10,8 +10,8 @@ interface ExpenseRowProps {
 
 export function ExpenseRow({ expense }: ExpenseRowProps) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 transition-colors hover:bg-muted/40">
-      <div className="flex min-w-0 flex-1 items-center gap-3">
+    <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 transition-colors hover:bg-muted/40 relative h-full">
+      <div className="flex items-start justify-between gap-3">
         <Badge
           className={
             expense.type === "IN"
@@ -21,27 +21,29 @@ export function ExpenseRow({ expense }: ExpenseRowProps) {
         >
           {expense.type}
         </Badge>
-
-        <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-foreground">{expense.category}</p>
-          <p className="truncate text-xs text-muted-foreground">
-            {expense.note || "No note"} · {formatTransactionDate(expense.date)}
-          </p>
-        </div>
+        <p
+          className={
+            expense.type === "IN"
+              ? "text-lg font-bold text-emerald-600"
+              : "text-lg font-bold text-rose-600"
+          }
+        >
+          {expense.type === "IN" ? "+" : "-"}
+          {formatCurrency(expense.amount)}
+        </p>
       </div>
 
-      <p
-        className={
-          expense.type === "IN"
-            ? "text-sm font-semibold text-emerald-600"
-            : "text-sm font-semibold text-rose-600"
-        }
-      >
-        {expense.type === "IN" ? "+" : "-"}
-        {formatCurrency(expense.amount)}
-      </p>
+      <div className="min-w-0 flex-grow">
+        <p className="text-base font-semibold text-foreground mb-1">{expense.category}</p>
+        <p className="text-sm text-muted-foreground break-words line-clamp-2">
+          {expense.note || "No note"}
+        </p>
+      </div>
 
-      <DeleteButton transactionId={expense.id} />
+      <div className="flex items-center justify-between mt-2 pt-3 border-t border-border/50">
+        <span className="text-xs text-muted-foreground font-medium">{formatTransactionDate(expense.date)}</span>
+        <DeleteButton transactionId={expense.id} />
+      </div>
     </div>
   );
 }

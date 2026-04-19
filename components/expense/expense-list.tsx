@@ -71,9 +71,9 @@ export function ExpenseList({
 
       <CardContent className="space-y-3">
         {isRefreshing && visibleTransactions.length === 0 ? (
-          <div className="space-y-2">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <Skeleton key={index} className="h-16 w-full rounded-2xl" />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <Skeleton key={index} className="h-32 w-full rounded-2xl" />
             ))}
           </div>
         ) : visibleTransactions.length === 0 ? (
@@ -82,7 +82,7 @@ export function ExpenseList({
             <p className="text-sm text-muted-foreground/70">Add your first IN or OUT entry above.</p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {visibleTransactions.map((transaction) => (
               <ExpenseRow key={transaction.id} expense={transaction} />
             ))}
