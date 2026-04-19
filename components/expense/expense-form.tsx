@@ -101,8 +101,8 @@ export function ExpenseForm() {
               "h-10 flex-1 rounded-full",
               fallbackType === type &&
                 (type === "IN"
-                  ? "border-emerald-500 bg-emerald-500/10 text-emerald-700"
-                  : "border-rose-500 bg-rose-500/10 text-rose-700")
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-destructive bg-destructive/10 text-destructive")
             )}
           >
             {type}

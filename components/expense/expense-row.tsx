@@ -15,8 +15,8 @@ export function ExpenseRow({ expense }: ExpenseRowProps) {
         <Badge
           className={
             expense.type === "IN"
-              ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/10"
-              : "border-rose-500/20 bg-rose-500/10 text-rose-700 hover:bg-rose-500/10"
+              ? "border-primary/20 bg-primary/10 text-primary hover:bg-primary/20"
+              : "border-destructive/20 bg-destructive/10 text-destructive hover:bg-destructive/20"
           }
         >
           {expense.type}
@@ -24,8 +24,8 @@ export function ExpenseRow({ expense }: ExpenseRowProps) {
         <p
           className={
             expense.type === "IN"
-              ? "text-lg font-bold text-emerald-600"
-              : "text-lg font-bold text-rose-600"
+              ? "text-lg font-bold text-primary"
+              : "text-lg font-bold text-destructive"
           }
         >
           {expense.type === "IN" ? "+" : "-"}
@@ -55,8 +55,8 @@ export function ExpenseTableRow({ expense }: ExpenseRowProps) {
         <Badge
           className={
             expense.type === "IN"
-              ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/10"
-              : "border-rose-500/20 bg-rose-500/10 text-rose-700 hover:bg-rose-500/10"
+              ? "border-primary/20 bg-primary/10 text-primary hover:bg-primary/20"
+              : "border-destructive/20 bg-destructive/10 text-destructive hover:bg-destructive/20"
           }
         >
           {expense.type}
@@ -75,8 +75,8 @@ export function ExpenseTableRow({ expense }: ExpenseRowProps) {
         <span
           className={
             expense.type === "IN"
-              ? "text-sm font-bold text-emerald-600 whitespace-nowrap"
-              : "text-sm font-bold text-rose-600 whitespace-nowrap"
+              ? "text-sm font-bold text-primary whitespace-nowrap"
+              : "text-sm font-bold text-destructive whitespace-nowrap"
           }
         >
           {expense.type === "IN" ? "+" : "-"}

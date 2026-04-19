@@ -71,7 +71,7 @@ export function CashbookWorkspace({
   return (
     <div className="space-y-6">
       <section className="grid gap-3  sm:grid-cols-3">
-        <Card className="border-emerald-500/20 bg-emerald-500/5">
+        <Card className="border-primary/20 bg-primary/5">
           <CardHeader className="pb-2">
             <CardTitle className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
               Total Balance
@@ -82,25 +82,25 @@ export function CashbookWorkspace({
           </CardContent>
         </Card>
 
-        <Card className="border-emerald-500/20">
+        <Card className="border-primary/20">
           <CardHeader className="pb-2">
             <CardTitle className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
               Total IN
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-semibold text-emerald-600">{formatCurrency(summary.totalIn)}</p>
+            <p className="text-2xl font-semibold text-primary">{formatCurrency(summary.totalIn)}</p>
           </CardContent>
         </Card>
 
-        <Card className="border-rose-500/20">
+        <Card className="border-destructive/20">
           <CardHeader className="pb-2">
             <CardTitle className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
               Total OUT
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-semibold text-rose-600">{formatCurrency(summary.totalOut)}</p>
+            <p className="text-2xl font-semibold text-destructive">{formatCurrency(summary.totalOut)}</p>
           </CardContent>
         </Card>
       </section>
@@ -111,10 +111,10 @@ export function CashbookWorkspace({
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold">Daily Summary</CardTitle>
           <div className="flex flex-wrap gap-2 pt-2 text-sm">
-            <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-emerald-700">
+            <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-primary">
               IN {formatCurrency(summary.todayIn)}
             </span>
-            <span className="rounded-full border border-rose-500/20 bg-rose-500/10 px-3 py-1 text-rose-700">
+            <span className="rounded-full border border-destructive/20 bg-destructive/10 px-3 py-1 text-destructive">
               OUT {formatCurrency(summary.todayOut)}
             </span>
           </div>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { signOut } from "@/lib/auth-client";
+import { ModeToggle } from "@/components/mode-toggle";
 
 const NAV = [
   {
@@ -65,6 +66,9 @@ export function BottomNav() {
           {label}
         </Link>
       ))}
+      <div className="flex flex-col items-center gap-0.5 px-2">
+        <ModeToggle />
+      </div>
       <button
         onClick={handleLogout}
         className="flex flex-col items-center gap-0.5 rounded-lg px-4 py-1.5 text-xs font-medium text-muted-foreground"

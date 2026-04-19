@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { signOut } from "@/lib/auth-client";
+import { ModeToggle } from "@/components/mode-toggle";
 
 const NAV = [
   {
@@ -81,6 +82,10 @@ export function Sidebar({ email }: { email?: string }) {
         {email ? (
           <p className="mb-2 truncate px-3 text-xs text-muted-foreground">{email}</p>
         ) : null}
+        <div className="flex items-center gap-2 mb-2">
+          <ModeToggle />
+          <span className="text-xs text-muted-foreground font-medium">Theme</span>
+        </div>
         <button
           id="sidebar-logout"
           onClick={handleLogout}
