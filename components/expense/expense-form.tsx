@@ -1,147 +1,138 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Label } from "@/components/ui/label";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { CATEGORIES, type Expense } from "@/lib/expense-types";
+import { cn } from "@/lib/utils";
+import { useAppStore } from "@/store/app-store";
+import { parseQuickTransaction, type Transaction, type TransactionType } from "@/lib/transactions";
 
-interface ExpenseFormProps {
-  /** Pass an existing expense to enter edit mode */
-  expense?: Expense;
-  /** Called after a successful save (for use in sheets) */
-  onSuccess?: () => void;
-  /** Whether to redirect to /expenses after saving (add page) */
-  redirectOnSuccess?: boolean;
-}
+const TRANSACTIONS_QUERY_KEY = ["transactions"];
 
-function toDateInput(iso: string) {
-  return iso.split("T")[0];
-}
-
-function todayISO() {
-  return new Date().toISOString().split("T")[0];
-}
-
-export function ExpenseForm({ expense, onSuccess, redirectOnSuccess }: ExpenseFormProps) {
-  const router = useRouter();
-  const isEdit = Boolean(expense);
-
-  const [amount, setAmount] = useState(expense ? String(expense.amount) : "");
-  const [category, setCategory] = useState(expense?.category ?? "Food");
-  const [note, setNote] = useState(expense?.note ?? "");
-  const [date, setDate] = useState(expense ? toDateInput(expense.date) : todayISO());
+export function ExpenseForm() {
+  const queryClient = useQueryClient();
+  const quickInput = useAppStore((state) => state.quickInput);
+  const fallbackType = useAppStore((state) => state.fallbackType);
+  const setQuickInput = useAppStore((state) => state.setQuickInput);
+  const setFallbackType = useAppStore((state) => state.setFallbackType);
+  const addTransaction = useAppStore((state) => state.addTransaction);
+  const replaceTransaction = useAppStore((state) => state.replaceTransaction);
+  const removeTransaction = useAppStore((state) => state.removeTransaction);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-
-    if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) {
-      setError("Please enter a valid amount.");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const url = isEdit ? `/api/expenses/${expense!.id}` : "/api/expenses";
-      const method = isEdit ? "PATCH" : "POST";
-
-      const res = await fetch(url, {
-        method,
+  const mutation = useMutation({
+    mutationFn: async (payload: { input: string; type: TransactionType }) => {
+      const response = await fetch("/api/transactions", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: parseFloat(amount), category, note: note || null, date }),
+        body: JSON.stringify(payload),
       });
 
-      if (!res.ok) {
-        const data = await res.json();
-        setError(data.error ?? "Something went wrong.");
-        return;
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error ?? "Could not save transaction.");
       }
 
-      if (onSuccess) {
-        onSuccess();
+      return data as Transaction;
+    },
+  });
+
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    setError("");
+
+    const currentInput = quickInput;
+    let optimisticTransaction: Transaction | null = null;
+
+    try {
+      const parsed = parseQuickTransaction(currentInput, fallbackType);
+      optimisticTransaction = {
+        id: `temp-${Date.now()}`,
+        userId: "local",
+        amount: parsed.amount,
+        type: parsed.type,
+        category: parsed.category,
+        note: parsed.note,
+        date: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+      };
+
+      addTransaction(optimisticTransaction);
+      setQuickInput("");
+
+      const savedTransaction = await mutation.mutateAsync({ input: currentInput, type: fallbackType });
+      replaceTransaction(optimisticTransaction.id, savedTransaction);
+      await queryClient.invalidateQueries({ queryKey: TRANSACTIONS_QUERY_KEY });
+    } catch (submitError) {
+      if (optimisticTransaction) {
+        removeTransaction(optimisticTransaction.id);
       }
 
-      if (redirectOnSuccess) {
-        router.push("/expenses");
-        router.refresh();
-      }
-    } catch {
-      setError("Network error. Please try again.");
-    } finally {
-      setLoading(false);
+      setQuickInput(currentInput);
+      setError(submitError instanceof Error ? submitError.message : "Could not save transaction.");
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" id={isEdit ? "edit-expense-form" : "add-expense-form"}>
-      {/* Amount */}
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 rounded-3xl border border-border bg-card p-4 shadow-sm sm:p-5"
+      id="cashbook-composer"
+    >
       <div className="space-y-2">
-        <Label htmlFor="expense-amount">Amount (PKR)</Label>
-        <Input
-          id="expense-amount"
-          type="number"
-          min="0.01"
-          step="0.01"
-          placeholder="0.00"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          required
-        />
+        <p className="text-sm font-semibold">Quick add</p>
+        <p className="text-sm text-muted-foreground">
+          Try `500 in salary`, `300 out food`, `1000 received`, or `200 spent`.
+        </p>
       </div>
 
-      {/* Category */}
-      <div className="space-y-2">
-        <Label htmlFor="expense-category">Category</Label>
-        <Select
-          id="expense-category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        >
-          {CATEGORIES.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </Select>
+      <div className="flex gap-2">
+        {(["IN", "OUT"] as const).map((type) => (
+          <Button
+            key={type}
+            type="button"
+            variant="outline"
+            onClick={() => setFallbackType(type)}
+            className={cn(
+              "h-10 flex-1 rounded-full",
+              fallbackType === type &&
+                (type === "IN"
+                  ? "border-emerald-500 bg-emerald-500/10 text-emerald-700"
+                  : "border-rose-500 bg-rose-500/10 text-rose-700")
+            )}
+          >
+            {type}
+          </Button>
+        ))}
       </div>
 
-      {/* Date */}
-      <div className="space-y-2">
-        <Label htmlFor="expense-date">Date</Label>
+      <div className="flex flex-col gap-3 sm:flex-row">
         <Input
-          id="expense-date"
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          required
-        />
-      </div>
-
-      {/* Note */}
-      <div className="space-y-2">
-        <Label htmlFor="expense-note">Note <span className="text-muted-foreground font-normal">(optional)</span></Label>
-        <Input
-          id="expense-note"
+          id="transaction-quick-input"
           type="text"
-          placeholder="e.g. Lunch at cafe"
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
+          placeholder="Enter amount and note"
+          value={quickInput}
+          onChange={(event) => setQuickInput(event.target.value)}
+          autoComplete="off"
+          required
+          className="h-11 rounded-2xl"
         />
+        <Button
+          id="transaction-submit"
+          type="submit"
+          disabled={mutation.isPending}
+          className="h-11 rounded-2xl px-6"
+        >
+          {mutation.isPending ? "Saving..." : "Add"}
+        </Button>
       </div>
 
-      {error && (
+      {error ? (
         <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {error}
         </div>
-      )}
-
-      <Button id="expense-submit" type="submit" className="w-full" disabled={loading}>
-        {loading ? (isEdit ? "Saving…" : "Adding…") : (isEdit ? "Save changes" : "Add expense")}
-      </Button>
+      ) : null}
     </form>
   );
 }

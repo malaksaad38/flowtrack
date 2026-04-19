@@ -9,7 +9,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "FlowTrack",
-  description: "Minimal expense tracker built for speed.",
+  description: "Minimal cashbook app built for speed.",
 };
 
 export default function RootLayout({

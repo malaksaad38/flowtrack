@@ -22,8 +22,7 @@ model User {
 
   sessions      Session[]
   accounts      Account[]
-  expenses      Expense[]
-  incomes       Income[]
+  transactions  Transaction[]
 
   @@map("user")
 }
@@ -76,10 +75,16 @@ model Verification {
 // App domain
 // ──────────────────────────────────────────
 
-model Expense {
+enum TransactionType {
+  IN
+  OUT
+}
+
+model Transaction {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   userId    String   @db.ObjectId
   amount    Float
+  type      TransactionType
   category  String
   note      String?
   date      DateTime
@@ -87,16 +92,5 @@ model Expense {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, date])
-}
-
-model Income {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
-  amount    Float
-  note      String?
-  date      DateTime
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId, date])
+  @@index([userId, type, date])
 }

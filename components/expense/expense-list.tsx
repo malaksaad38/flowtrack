@@ -1,120 +1,94 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
 import { ExpenseRow } from "./expense-row";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Select } from "@/components/ui/select";
-import { CATEGORIES, type Expense } from "@/lib/expense-types";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAppStore } from "@/store/app-store";
+import { formatCurrency, type Transaction } from "@/lib/transactions";
 
-function currentMonthISO() {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+interface ExpenseListProps {
+  isRefreshing?: boolean;
+  limit?: number;
+  showFilters?: boolean;
+  fallbackTransactions?: Transaction[];
 }
 
-function buildMonthOptions() {
-  const opts: { label: string; value: string }[] = [{ label: "All time", value: "" }];
-  const now = new Date();
-  for (let i = 0; i < 12; i++) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    const label = d.toLocaleDateString("en-PK", { month: "long", year: "numeric" });
-    opts.push({ label, value });
-  }
-  return opts;
-}
+export function ExpenseList({
+  isRefreshing = false,
+  limit,
+  showFilters = true,
+  fallbackTransactions = [],
+}: ExpenseListProps) {
+  const hasLoadedTransactions = useAppStore((state) => state.hasLoadedTransactions);
+  const filterType = useAppStore((state) => state.filterType);
+  const setFilterType = useAppStore((state) => state.setFilterType);
+  const getFilteredTransactions = useAppStore((state) => state.getFilteredTransactions);
 
-export function ExpenseList() {
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [month, setMonth] = useState(currentMonthISO());
-  const [category, setCategory] = useState("all");
-
-  const monthOptions = buildMonthOptions();
-
-  const fetchExpenses = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (month) params.set("month", month);
-      if (category !== "all") params.set("category", category);
-
-      const res = await fetch(`/api/expenses?${params.toString()}`);
-      if (res.ok) {
-        const data = await res.json();
-        setExpenses(data);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [month, category]);
-
-  useEffect(() => {
-    fetchExpenses();
-  }, [fetchExpenses]);
-
-  const totalForFilter = expenses.reduce((s, e) => s + e.amount, 0);
+  const transactions = hasLoadedTransactions
+    ? getFilteredTransactions()
+    : filterType === "ALL"
+      ? fallbackTransactions
+      : fallbackTransactions.filter((transaction) => transaction.type === filterType);
+  const visibleTransactions = typeof limit === "number" ? transactions.slice(0, limit) : transactions;
+  const totalForFilter = transactions.reduce((sum, transaction) => sum + transaction.amount, 0);
 
   return (
-    <div className="space-y-4">
-      {/* Filter bar */}
-      <div className="flex flex-wrap gap-3">
-        <Select
-          id="filter-month"
-          value={month}
-          onChange={(e) => setMonth(e.target.value)}
-          className="w-44"
-          aria-label="Filter by month"
-        >
-          {monthOptions.map((o) => (
-            <option key={o.value} value={o.value}>{o.label}</option>
-          ))}
-        </Select>
+    <Card>
+      <CardHeader className="space-y-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <CardTitle className="text-sm font-semibold">Transactions</CardTitle>
+            <p className="text-sm text-muted-foreground">Clean, fast cashbook history.</p>
+          </div>
+          <div className="text-sm text-muted-foreground">
+            <span className="font-medium text-foreground">{formatCurrency(totalForFilter)}</span>
+            <span className="ml-1.5">({transactions.length} items)</span>
+            {isRefreshing ? <span className="ml-2 text-xs">Refreshing...</span> : null}
+          </div>
+        </div>
 
-        <Select
-          id="filter-category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="w-40"
-          aria-label="Filter by category"
-        >
-          <option value="all">All categories</option>
-          {CATEGORIES.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </Select>
+        {showFilters ? (
+          <div className="flex gap-2">
+            {(["ALL", "IN", "OUT"] as const).map((type) => (
+              <Button
+                key={type}
+                type="button"
+                variant="outline"
+                onClick={() => setFilterType(type)}
+                className={
+                  filterType === type
+                    ? "rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
+                    : "rounded-full"
+                }
+              >
+                {type}
+              </Button>
+            ))}
+          </div>
+        ) : null}
+      </CardHeader>
 
-        {!loading && (
-          <div className="ml-auto flex items-center text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">
-              {new Intl.NumberFormat("en-PK", { style: "currency", currency: "PKR", maximumFractionDigits: 0 }).format(totalForFilter)}
-            </span>
-            <span className="ml-1.5">({expenses.length} transactions)</span>
+      <CardContent className="space-y-3">
+        {isRefreshing && visibleTransactions.length === 0 ? (
+          <div className="space-y-2">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <Skeleton key={index} className="h-16 w-full rounded-2xl" />
+            ))}
+          </div>
+        ) : visibleTransactions.length === 0 ? (
+          <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-border py-16 text-center">
+            <p className="font-medium text-muted-foreground">No transactions yet</p>
+            <p className="text-sm text-muted-foreground/70">Add your first IN or OUT entry above.</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {visibleTransactions.map((transaction) => (
+              <ExpenseRow key={transaction.id} expense={transaction} />
+            ))}
           </div>
         )}
-      </div>
-
-      {/* List */}
-      {loading ? (
-        <div className="space-y-2">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-16 w-full rounded-lg" />
-          ))}
-        </div>
-      ) : expenses.length === 0 ? (
-        <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-border py-16 text-center">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
-            <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
-          <p className="font-medium text-muted-foreground">No expenses found</p>
-          <p className="text-sm text-muted-foreground/70">Try changing your filters or add a new expense.</p>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {expenses.map((expense) => (
-            <ExpenseRow key={expense.id} expense={expense} onMutate={fetchExpenses} />
-          ))}
-        </div>
-      )}
-    </div>
+      </CardContent>
+    </Card>
   );
 }

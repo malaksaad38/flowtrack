@@ -1,26 +1,39 @@
 "use client";
 
 import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { useAppStore } from "@/store/app-store";
 
 interface DeleteButtonProps {
-  expenseId: string;
-  onDeleted: () => void;
+  transactionId: string;
 }
 
-export function DeleteButton({ expenseId, onDeleted }: DeleteButtonProps) {
+const TRANSACTIONS_QUERY_KEY = ["transactions"];
+
+export function DeleteButton({ transactionId }: DeleteButtonProps) {
+  const queryClient = useQueryClient();
+  const removeTransaction = useAppStore((state) => state.removeTransaction);
   const [confirm, setConfirm] = useState(false);
-  const [loading, setLoading] = useState(false);
+
+  const mutation = useMutation({
+    mutationFn: async (transactionId: string) => {
+      const response = await fetch(`/api/transactions/${transactionId}`, { method: "DELETE" });
+      if (!response.ok) {
+        throw new Error("Could not delete transaction.");
+      }
+    },
+  });
 
   async function handleDelete() {
-    setLoading(true);
+    removeTransaction(transactionId);
+
     try {
-      const res = await fetch(`/api/expenses/${expenseId}`, { method: "DELETE" });
-      if (res.ok) {
-        onDeleted();
-      }
-    } finally {
-      setLoading(false);
+      await mutation.mutateAsync(transactionId);
+      await queryClient.invalidateQueries({ queryKey: TRANSACTIONS_QUERY_KEY });
+      setConfirm(false);
+    } catch {
+      await queryClient.invalidateQueries({ queryKey: TRANSACTIONS_QUERY_KEY });
       setConfirm(false);
     }
   }
@@ -29,17 +42,17 @@ export function DeleteButton({ expenseId, onDeleted }: DeleteButtonProps) {
     return (
       <div className="flex items-center gap-1">
         <Button
-          id={`confirm-delete-${expenseId}`}
+          id={`confirm-delete-${transactionId}`}
           variant="ghost"
           size="sm"
           onClick={handleDelete}
-          disabled={loading}
+          disabled={mutation.isPending}
           className="h-8 px-2 text-xs text-destructive hover:bg-destructive/10"
         >
-          {loading ? "…" : "Delete"}
+          {mutation.isPending ? "..." : "Delete"}
         </Button>
         <Button
-          id={`cancel-delete-${expenseId}`}
+          id={`cancel-delete-${transactionId}`}
           variant="ghost"
           size="sm"
           onClick={() => setConfirm(false)}
@@ -53,12 +66,12 @@ export function DeleteButton({ expenseId, onDeleted }: DeleteButtonProps) {
 
   return (
     <Button
-      id={`delete-expense-${expenseId}`}
+      id={`delete-transaction-${transactionId}`}
       variant="ghost"
       size="sm"
       onClick={() => setConfirm(true)}
-      className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-      aria-label="Delete expense"
+      className="h-8 w-8 p-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+      aria-label="Delete transaction"
     >
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="3 6 5 6 21 6" />
