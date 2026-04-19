@@ -156,7 +156,7 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       {/* Page header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-sm text-muted-foreground">{monthLabel} overview</p>
@@ -186,8 +186,8 @@ export default async function DashboardPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-        {kpis.map((kpi) => (
-          <Card key={kpi.id} id={kpi.id}>
+        {kpis.map((kpi, index) => (
+          <Card key={kpi.id} id={kpi.id} className={index === 0 ? "col-span-2 lg:col-span-1" : ""}>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
