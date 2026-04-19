@@ -98,7 +98,7 @@ export function ExpenseForm() {
             variant="outline"
             onClick={() => setFallbackType(type)}
             className={cn(
-              "h-10 flex-1 rounded-full",
+              "h-10 flex-1 rounded-full hover:bg-transparent hover:text-foreground",
               fallbackType === type &&
                 (type === "IN"
                   ? "border-primary bg-primary/10 text-primary"
