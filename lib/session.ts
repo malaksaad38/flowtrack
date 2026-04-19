@@ -1,8 +1,32 @@
-import { NextRequest } from "next/server";
-import { verifyToken, type JWTPayload } from "./auth";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
-export async function getSession(request: NextRequest): Promise<JWTPayload | null> {
-  const token = request.cookies.get("ft_token")?.value;
-  if (!token) return null;
-  return verifyToken(token);
+export interface SessionUser {
+  id: string;
+  email: string;
+  name: string;
+  image?: string | null;
+}
+
+/**
+ * Server-side session helper.
+ * Works in Server Components, Route Handlers, and Server Actions.
+ */
+export async function getSession(): Promise<SessionUser | null> {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user) return null;
+
+    return {
+      id: session.user.id,
+      email: session.user.email,
+      name: session.user.name,
+      image: session.user.image,
+    };
+  } catch {
+    return null;
+  }
 }

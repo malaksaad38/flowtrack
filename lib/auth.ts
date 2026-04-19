@@ -1,27 +1,33 @@
-import { SignJWT, jwtVerify } from "jose";
+import { betterAuth } from "better-auth";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import { prisma } from "@/db/prisma";
 
-const secret = new TextEncoder().encode(
-  process.env.NEXTAUTH_SECRET ?? "fallback-secret-change-in-production"
-);
+export const auth = betterAuth({
+  database: prismaAdapter(prisma, {
+    provider: "mongodb",
+  }),
 
-export interface JWTPayload {
-  id: string;
-  email: string;
-}
+  advanced: {
+    database: {
+      generateId: false,
+    },
+  },
 
-export async function signToken(payload: JWTPayload): Promise<string> {
-  return new SignJWT({ ...payload })
-    .setProtectedHeader({ alg: "HS256" })
-    .setIssuedAt()
-    .setExpirationTime("7d")
-    .sign(secret);
-}
+  emailAndPassword: {
+    enabled: true,
+    minPasswordLength: 6,
+  },
 
-export async function verifyToken(token: string): Promise<JWTPayload | null> {
-  try {
-    const { payload } = await jwtVerify(token, secret);
-    return { id: payload.id as string, email: payload.email as string };
-  } catch {
-    return null;
-  }
-}
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    },
+  },
+
+  // Better Auth uses /api/auth/* by default — matches our existing route layout
+  baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
+  secret: process.env.BETTER_AUTH_SECRET,
+});
+
+export type Session = typeof auth.$Infer.Session;

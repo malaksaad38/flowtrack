@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { cookies } from "next/headers";
-import { verifyToken } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { prisma } from "@/db/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -64,9 +63,7 @@ function fmtDate(iso: string | Date) {
 }
 
 export default async function DashboardPage() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("ft_token")?.value;
-  const session = token ? await verifyToken(token) : null;
+  const session = await getSession();
 
   if (!session) {
     return (

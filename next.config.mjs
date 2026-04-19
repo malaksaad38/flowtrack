@@ -3,7 +3,7 @@ const nextConfig = {
     typescript: {
         ignoreBuildErrors: true,
     },
-    serverExternalPackages: ["bcryptjs", "@prisma/client"],
+    serverExternalPackages: ["bcryptjs", "@prisma/client", "better-auth"],
 };
 
 export default nextConfig;

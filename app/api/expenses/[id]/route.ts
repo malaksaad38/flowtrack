@@ -11,7 +11,7 @@ export async function PATCH(
   context: RouteContext
 ) {
   const params = await context.params;
-  const session = await getSession(request);
+  const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
 
   try {
@@ -42,11 +42,11 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   context: RouteContext
 ) {
   const params = await context.params;
-  const session = await getSession(request);
+  const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
 
   const existing = await prisma.expense.findUnique({ where: { id: params.id } });

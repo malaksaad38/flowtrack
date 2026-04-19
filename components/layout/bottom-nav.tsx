@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { signOut } from "@/lib/auth-client";
 
 const NAV = [
   {
@@ -42,7 +43,7 @@ export function BottomNav() {
   const router = useRouter();
 
   async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
+    await signOut();
     router.push("/");
     router.refresh();
   }

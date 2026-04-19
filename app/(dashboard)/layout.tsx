@@ -1,12 +1,9 @@
-import { cookies } from "next/headers";
-import { verifyToken } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { Sidebar } from "@/components/layout/sidebar";
 import { BottomNav } from "@/components/layout/bottom-nav";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("ft_token")?.value;
-  const session = token ? await verifyToken(token) : null;
+  const session = await getSession();
 
   return (
     <div className="flex min-h-screen bg-background">
