@@ -101,8 +101,8 @@ export function ExpenseForm() {
               "h-10 flex-1 rounded-full hover:bg-transparent hover:text-foreground",
               fallbackType === type &&
                 (type === "IN"
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-destructive bg-destructive/10 text-destructive")
+                  ? "border-primary hover:bg-primary/10 bg-primary/10 text-primary"
+                  : "border-destructive hover:bg-destructive/10 bg-destructive/10 text-destructive")
             )}
           >
             {type}
