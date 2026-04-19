@@ -22,6 +22,12 @@ async function getDashboardData(userId: string) {
         orderBy: { date: "desc" },
     });
 
+    const [allExpenses, allIncomes] = await Promise.all([
+        prisma.expense.findMany({ where: { userId } }),
+        prisma.income.findMany({ where: { userId } })
+    ]);
+    const walletBalance = allIncomes.reduce((s, i) => s + i.amount, 0) - allExpenses.reduce((s, e) => s + e.amount, 0);
+
     type Expense = (typeof expenses)[number];
 
     const total = expenses.reduce((s: number, e: Expense) => s + e.amount, 0);
@@ -48,7 +54,7 @@ async function getDashboardData(userId: string) {
     const donutData = Object.entries(categoryMap).map(([label, value]) => ({ label, value }));
     const recent = expenses.slice(0, 5);
 
-    return { total, largest, count, topCategory, barData, donutData, recent };
+    return { total, largest, count, topCategory, barData, donutData, recent, walletBalance };
 }
 function fmt(n: number) {
   return new Intl.NumberFormat("en-PK", {
@@ -80,19 +86,31 @@ export default async function DashboardPage() {
     // DB not connected — show empty state with demo UI
     data = {
       total: 0, largest: 0, count: 0, topCategory: "—",
-      barData: [], donutData: [], recent: [],
+      barData: [], donutData: [], recent: [], walletBalance: 0,
     };
   }
 
-  const { total, largest, count, topCategory, barData, donutData, recent } = data;
+  const { total, largest, count, topCategory, barData, donutData, recent, walletBalance } = data;
 
   const now = new Date();
   const monthLabel = now.toLocaleDateString("en-PK", { month: "long", year: "numeric" });
 
   const kpis = [
     {
+      id: "kpi-wallet",
+      label: "Wallet Balance",
+      value: fmt(walletBalance),
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4" />
+          <path d="M4 6v12c0 1.1.9 2 2 2h14v-4" />
+          <path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z" />
+        </svg>
+      ),
+    },
+    {
       id: "kpi-total",
-      label: "Total Spent",
+      label: "Total Spent (Month)",
       value: fmt(total),
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -143,20 +161,31 @@ export default async function DashboardPage() {
           <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-sm text-muted-foreground">{monthLabel} overview</p>
         </div>
-        <Link
-          href="/add"
-          id="dashboard-add-btn"
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-          Add Expense
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href="/wallet"
+            className="inline-flex items-center gap-2 rounded-lg bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground hover:opacity-90 transition-opacity"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Add Money
+          </Link>
+          <Link
+            href="/add"
+            id="dashboard-add-btn"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Add Expense
+          </Link>
+        </div>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
         {kpis.map((kpi) => (
           <Card key={kpi.id} id={kpi.id}>
             <CardHeader className="pb-2">
