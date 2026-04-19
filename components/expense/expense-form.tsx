@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/store/app-store";
 import { parseQuickTransaction, type Transaction, type TransactionType } from "@/lib/transactions";
@@ -20,9 +22,10 @@ export function ExpenseForm() {
   const replaceTransaction = useAppStore((state) => state.replaceTransaction);
   const removeTransaction = useAppStore((state) => state.removeTransaction);
   const [error, setError] = useState("");
+  const [date, setDate] = useState<Date>(new Date());
 
   const mutation = useMutation({
-    mutationFn: async (payload: { input: string; type: TransactionType }) => {
+    mutationFn: async (payload: { input: string; type: TransactionType; date: string }) => {
       const response = await fetch("/api/transactions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -54,14 +57,14 @@ export function ExpenseForm() {
         type: parsed.type,
         category: parsed.category,
         note: parsed.note,
-        date: new Date().toISOString(),
+        date: date.toISOString(),
         createdAt: new Date().toISOString(),
       };
 
       addTransaction(optimisticTransaction);
       setQuickInput("");
 
-      const savedTransaction = await mutation.mutateAsync({ input: currentInput, type: fallbackType });
+      const savedTransaction = await mutation.mutateAsync({ input: currentInput, type: fallbackType, date: date.toISOString() });
       replaceTransaction(optimisticTransaction.id, savedTransaction);
       await queryClient.invalidateQueries({ queryKey: TRANSACTIONS_QUERY_KEY });
     } catch (submitError) {
@@ -108,21 +111,51 @@ export function ExpenseForm() {
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row">
-        <Input
-          id="transaction-quick-input"
-          type="text"
-          placeholder="Enter amount and note"
-          value={quickInput}
-          onChange={(event) => setQuickInput(event.target.value)}
-          autoComplete="off"
-          required
-          className="h-11 rounded-2xl"
-        />
+        <div className="flex flex-1 gap-2 relative w-full">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                type="button"
+                className={cn(
+                  "h-11 w-11 shrink-0 rounded-2xl p-0 flex items-center justify-center",
+                  !date && "text-muted-foreground"
+                )}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={(d) => d && setDate(d)}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+
+          <Input
+            id="transaction-quick-input"
+            type="text"
+            placeholder="Enter amount and note"
+            value={quickInput}
+            onChange={(event) => setQuickInput(event.target.value)}
+            autoComplete="off"
+            required
+            className="flex-1 h-11 rounded-2xl min-w-0"
+          />
+        </div>
         <Button
           id="transaction-submit"
           type="submit"
           disabled={mutation.isPending}
-          className="h-11 rounded-2xl px-6"
+          className="h-11 rounded-2xl px-6 w-full sm:w-auto"
         >
           {mutation.isPending ? "Saving..." : "Add"}
         </Button>
