@@ -47,3 +47,45 @@ export function ExpenseRow({ expense }: ExpenseRowProps) {
     </div>
   );
 }
+
+export function ExpenseTableRow({ expense }: ExpenseRowProps) {
+  return (
+    <tr className="border-b border-border/50 hover:bg-muted/40 transition-colors last:border-0">
+      <td className="px-4 py-3 align-middle">
+        <Badge
+          className={
+            expense.type === "IN"
+              ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/10"
+              : "border-rose-500/20 bg-rose-500/10 text-rose-700 hover:bg-rose-500/10"
+          }
+        >
+          {expense.type}
+        </Badge>
+      </td>
+      <td className="px-4 py-3 align-middle text-sm text-muted-foreground whitespace-nowrap">
+        {formatTransactionDate(expense.date)}
+      </td>
+      <td className="px-4 py-3 align-middle text-sm font-semibold text-foreground whitespace-nowrap">
+        {expense.category}
+      </td>
+      <td className="px-4 py-3 align-middle text-sm text-muted-foreground max-w-xs truncate">
+        {expense.note || <span className="text-muted-foreground/50 italic">No note</span>}
+      </td>
+      <td className="px-4 py-3 align-middle text-right">
+        <span
+          className={
+            expense.type === "IN"
+              ? "text-sm font-bold text-emerald-600 whitespace-nowrap"
+              : "text-sm font-bold text-rose-600 whitespace-nowrap"
+          }
+        >
+          {expense.type === "IN" ? "+" : "-"}
+          {formatCurrency(expense.amount)}
+        </span>
+      </td>
+      <td className="px-4 py-3 align-middle text-center w-14">
+        <DeleteButton transactionId={expense.id} />
+      </td>
+    </tr>
+  );
+}

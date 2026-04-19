@@ -70,7 +70,7 @@ export function CashbookWorkspace({
 
   return (
     <div className="space-y-6">
-      <section className="grid gap-3 sm:grid-cols-3">
+      <section className="grid gap-3  sm:grid-cols-3">
         <Card className="border-emerald-500/20 bg-emerald-500/5">
           <CardHeader className="pb-2">
             <CardTitle className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">

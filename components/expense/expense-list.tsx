@@ -1,6 +1,6 @@
 "use client";
 
-import { ExpenseRow } from "./expense-row";
+import { ExpenseRow, ExpenseTableRow } from "./expense-row";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -71,22 +71,51 @@ export function ExpenseList({
 
       <CardContent className="space-y-3">
         {isRefreshing && visibleTransactions.length === 0 ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <Skeleton key={index} className="h-32 w-full rounded-2xl" />
-            ))}
-          </div>
+          <>
+            <div className="grid gap-4 sm:grid-cols-2 lg:hidden">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <Skeleton key={index} className="h-32 w-full rounded-2xl" />
+              ))}
+            </div>
+            <div className="hidden lg:block w-full">
+              <Skeleton className="h-64 w-full rounded-2xl" />
+            </div>
+          </>
         ) : visibleTransactions.length === 0 ? (
           <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-border py-16 text-center">
             <p className="font-medium text-muted-foreground">No transactions yet</p>
             <p className="text-sm text-muted-foreground/70">Add your first IN or OUT entry above.</p>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {visibleTransactions.map((transaction) => (
-              <ExpenseRow key={transaction.id} expense={transaction} />
-            ))}
-          </div>
+          <>
+            {/* Mobile / Tablet View: Grid of Cards */}
+            <div className="grid gap-4 sm:grid-cols-2 lg:hidden">
+              {visibleTransactions.map((transaction) => (
+                <ExpenseRow key={transaction.id} expense={transaction} />
+              ))}
+            </div>
+
+            {/* Desktop View: Table */}
+            <div className="hidden lg:block w-full overflow-x-auto rounded-2xl border border-border bg-card">
+              <table className="w-full text-sm text-left">
+                <thead className="text-xs text-muted-foreground uppercase bg-muted/50 border-b border-border">
+                  <tr>
+                    <th className="px-4 py-3 font-medium rounded-tl-2xl w-24">Type</th>
+                    <th className="px-4 py-3 font-medium w-32">Date</th>
+                    <th className="px-4 py-3 font-medium">Category</th>
+                    <th className="px-4 py-3 font-medium">Note</th>
+                    <th className="px-4 py-3 font-medium text-right w-32">Amount</th>
+                    <th className="px-4 py-3 font-medium text-center rounded-tr-2xl w-14">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visibleTransactions.map((transaction) => (
+                    <ExpenseTableRow key={transaction.id} expense={transaction} />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </CardContent>
     </Card>
