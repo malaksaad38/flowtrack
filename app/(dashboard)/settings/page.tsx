@@ -1,13 +1,10 @@
-"use client";
-
 import { ModeToggle } from "@/components/mode-toggle";
-import { LogoutButton } from "@/components/logout-button";
-import { useSession } from "@/lib/auth-client";
+import { getSession } from "@/lib/session";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { LogoutButton } from "@/components/logout-button";
 
-export default function SettingsPage() {
-  const { data: session } = useSession();
-  const user = session?.user;
+export default async function SettingsPage() {
+  const user = await getSession();
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
