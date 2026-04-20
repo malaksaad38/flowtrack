@@ -1,21 +1,13 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { ModeToggle } from "@/components/mode-toggle";
-import { signOut, useSession } from "@/lib/auth-client";
+import { LogoutButton } from "@/components/logout-button";
+import { useSession } from "@/lib/auth-client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 
 export default function SettingsPage() {
-  const router = useRouter();
   const { data: session } = useSession();
   const user = session?.user;
-
-  async function handleLogout() {
-    await signOut();
-    router.push("/");
-    router.refresh();
-  }
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -69,13 +61,7 @@ export default function SettingsPage() {
                   <span className="text-sm font-medium leading-none">Log out</span>
                   <span className="text-sm text-muted-foreground">Disconnect your current session across this device.</span>
                 </div>
-                <Button variant="destructive" onClick={handleLogout} className="flex items-center gap-2 w-full sm:w-auto hover:bg-destructive/90 transition-colors shadow-sm">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                    <polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
-                  </svg>
-                  Sign Out Securely
-                </Button>
+                <LogoutButton />
               </div>
             </div>
           </CardContent>
