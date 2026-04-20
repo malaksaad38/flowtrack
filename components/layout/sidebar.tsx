@@ -41,7 +41,7 @@ export function Sidebar({ email }: { email?: string }) {
   const pathname = usePathname();
 
   return (
-    <aside className="flex h-full w-60 flex-col border-r border-border bg-card">
+      <aside className="sticky top-0 h-screen w-60 flex flex-col border-r border-border bg-card">
       <div className="flex items-center gap-2 border-b border-border px-6 py-5">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary-foreground">
