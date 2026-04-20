@@ -37,7 +37,7 @@ const NAV = [
   },
 ];
 
-export function Sidebar({ email }: { email?: string }) {
+export function Sidebar() {
   const pathname = usePathname();
 
   return (

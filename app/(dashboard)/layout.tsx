@@ -9,7 +9,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <div className="flex min-h-screen bg-background">
       {/* Desktop sidebar */}
       <div className="hidden lg:flex lg:flex-shrink-0">
-        <Sidebar email={session?.email} />
+        <Sidebar />
       </div>
 
       {/* Main content */}
