@@ -7,7 +7,12 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 
 export function AppProviders({ children }: PropsWithChildren) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
       <QueryProvider>{children}</QueryProvider>
     </ThemeProvider>
   );
