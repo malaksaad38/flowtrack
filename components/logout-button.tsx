@@ -15,7 +15,7 @@ export function LogoutButton() {
 
   return (
     <Button 
-      variant="destructive" 
+      variant="outline"
       onClick={handleLogout} 
       className="flex items-center gap-2 w-full sm:w-auto hover:bg-destructive/90 transition-colors shadow-sm"
     >
@@ -23,7 +23,7 @@ export function LogoutButton() {
         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
         <polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
       </svg>
-      Sign Out Securely
+      Sign Out
     </Button>
   );
 }

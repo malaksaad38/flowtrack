@@ -33,7 +33,7 @@ export default async function ExpensesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex sm:items-center items-start gap-2  justify-between flex-col sm:flex-row">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Transactions</h1>
           <p className="text-sm text-muted-foreground">Filter every IN and OUT entry in one feed.</p>
