@@ -41,14 +41,14 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-      <aside className="sticky top-0 h-screen w-60 flex flex-col border-r border-border bg-card">
-      <div className="flex items-center gap-2 border-b border-border px-6 py-5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary-foreground">
+      <aside className="sticky top-0 h-screen w-64 flex flex-col border-r border-border/40 bg-background/60 backdrop-blur-xl">
+      <div className="flex items-center gap-3 border-b border-border/40 px-6 py-6 transition-all duration-300 hover:opacity-80">
+        <div className="flex h-9 w-9 p-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-md shadow-primary/20 text-primary-foreground">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 2v20M2 12h20" /><circle cx="12" cy="12" r="3" />
           </svg>
         </div>
-        <span className="font-bold text-foreground">FlowTrack</span>
+        <span className="font-bold text-lg tracking-tight text-foreground">FlowTrack</span>
       </div>
 
       <nav className="flex-1 space-y-1 p-4">
@@ -57,10 +57,10 @@ export function Sidebar() {
             key={href}
             href={href}
             className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+              "group/nav flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300",
               pathname === href || (href !== "/dashboard" && pathname.startsWith(href))
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                : "text-muted-foreground hover:bg-muted/50 hover:text-foreground hover:-translate-y-0.5"
             )}
           >
             {icon}

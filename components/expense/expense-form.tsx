@@ -80,12 +80,12 @@ export function ExpenseForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-4 rounded-3xl border border-border bg-card p-4 shadow-sm sm:p-5"
+      className="relative space-y-5 rounded-3xl border border-border/50 bg-background/60 backdrop-blur-xl p-5 shadow-lg sm:p-6 transition-all duration-300 hover:shadow-xl focus-within:ring-1 focus-within:ring-primary/20 focus-within:border-primary/30"
       id="cashbook-composer"
     >
-      <div className="space-y-2">
-        <p className="text-sm font-semibold">Quick add</p>
-        <p className="text-sm text-muted-foreground">
+      <div className="space-y-1.5">
+        <p className="text-base font-bold tracking-tight">Quick add</p>
+        <p className="text-sm text-muted-foreground/80">
           Try `500 in salary`, `300 out food`, `1000 received`, or `200 spent`.
         </p>
       </div>
@@ -98,11 +98,11 @@ export function ExpenseForm() {
             variant="outline"
             onClick={() => setFallbackType(type)}
             className={cn(
-              "h-10 flex-1 rounded-full hover:bg-transparent hover:text-foreground",
+              "h-11 flex-1 rounded-2xl transition-all duration-300 outline-none hover:bg-background/80 font-semibold tracking-wide",
               fallbackType === type &&
                 (type === "IN"
-                  ? "border-primary hover:bg-primary/10 bg-primary/10 text-primary"
-                  : "border-destructive hover:bg-destructive/10 bg-destructive/10 text-destructive")
+                  ? "border-primary/30 bg-primary/10 text-primary shadow-sm hover:bg-primary/15"
+                  : "border-destructive/30 bg-destructive/10 text-destructive shadow-sm hover:bg-destructive/15")
             )}
           >
             {type}

@@ -34,12 +34,12 @@ export function ExpenseList({
   const totalForFilter = transactions.reduce((sum, transaction) => sum + transaction.amount, 0);
 
   return (
-    <Card>
-      <CardHeader className="space-y-4">
+    <div className="rounded-3xl border border-border/50 bg-background/40 backdrop-blur-sm shadow-sm overflow-hidden flex flex-col">
+      <CardHeader className="space-y-4 px-6 py-5 bg-muted/10 border-b border-border/50">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <CardTitle className="text-sm font-semibold">Transactions</CardTitle>
-            <p className="text-sm text-muted-foreground">Clean, fast cashbook history.</p>
+            <CardTitle className="text-lg font-bold tracking-tight">Transactions</CardTitle>
+            <p className="text-sm text-muted-foreground/80">Clean, fast cashbook history.</p>
           </div>
           <div className="text-sm text-muted-foreground">
             <span className="font-medium text-foreground">{formatCurrency(totalForFilter)}</span>
@@ -96,16 +96,16 @@ export function ExpenseList({
             </div>
 
             {/* Desktop View: Table */}
-            <div className="hidden lg:block w-full overflow-x-auto rounded-2xl border border-border bg-card">
+            <div className="hidden lg:block w-full overflow-hidden rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm shadow-sm">
               <table className="w-full text-sm text-left">
-                <thead className="text-xs text-muted-foreground uppercase bg-muted/50 border-b border-border">
+                <thead className="text-xs font-bold tracking-wider text-muted-foreground uppercase bg-muted/40 border-b border-border/50">
                   <tr>
-                    <th className="px-4 py-3 font-medium rounded-tl-2xl w-24">Type</th>
-                    <th className="px-4 py-3 font-medium w-32">Date</th>
-                    <th className="px-4 py-3 font-medium">Category</th>
-                    <th className="px-4 py-3 font-medium">Note</th>
-                    <th className="px-4 py-3 font-medium text-right w-32">Amount</th>
-                    <th className="px-4 py-3 font-medium text-center rounded-tr-2xl w-14">Action</th>
+                    <th className="px-5 py-4 w-24">Type</th>
+                    <th className="px-5 py-4 w-32">Date</th>
+                    <th className="px-5 py-4">Category</th>
+                    <th className="px-5 py-4">Note</th>
+                    <th className="px-5 py-4 text-right w-36">Amount</th>
+                    <th className="px-5 py-4 text-center w-16">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -118,6 +118,6 @@ export function ExpenseList({
           </>
         )}
       </CardContent>
-    </Card>
+    </div>
   );
 }

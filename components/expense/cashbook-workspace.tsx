@@ -70,37 +70,40 @@ export function CashbookWorkspace({
 
   return (
     <div className="space-y-6">
-      <section className="grid gap-3  sm:grid-cols-3">
-        <Card className="border-primary/20 bg-primary/5">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+      <section className="grid gap-4 sm:grid-cols-3">
+        <Card className="relative overflow-hidden border-primary/20 bg-background/50 backdrop-blur-lg shadow-md transition-all hover:shadow-lg hover:border-primary/30">
+          <div className="absolute right-0 top-0 h-32 w-32 -translate-y-8 translate-x-8 rounded-full bg-primary/10 blur-3xl" />
+          <CardHeader className="pb-2 relative z-10">
+            <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
               Total Balance
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-semibold text-foreground">{formatCurrency(summary.balance)}</p>
+          <CardContent className="relative z-10">
+            <p className="text-3xl font-extrabold tracking-tight text-foreground">{formatCurrency(summary.balance)}</p>
           </CardContent>
         </Card>
 
-        <Card className="border-primary/20">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+        <Card className="relative overflow-hidden border-primary/10 bg-background/50 backdrop-blur-lg shadow-sm transition-all hover:shadow-md hover:border-primary/20">
+          <div className="absolute right-0 top-0 h-24 w-24 -translate-y-4 translate-x-4 rounded-full bg-primary/5 blur-2xl" />
+          <CardHeader className="pb-2 relative z-10">
+            <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
               Total IN
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-semibold text-primary">{formatCurrency(summary.totalIn)}</p>
+          <CardContent className="relative z-10">
+            <p className="text-3xl font-extrabold tracking-tight text-primary">{formatCurrency(summary.totalIn)}</p>
           </CardContent>
         </Card>
 
-        <Card className="border-destructive/20">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+        <Card className="relative overflow-hidden border-destructive/10 bg-background/50 backdrop-blur-lg shadow-sm transition-all hover:shadow-md hover:border-destructive/20">
+          <div className="absolute right-0 top-0 h-24 w-24 -translate-y-4 translate-x-4 rounded-full bg-destructive/5 blur-2xl" />
+          <CardHeader className="pb-2 relative z-10">
+            <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
               Total OUT
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-semibold text-destructive">{formatCurrency(summary.totalOut)}</p>
+          <CardContent className="relative z-10">
+            <p className="text-3xl font-extrabold tracking-tight text-destructive">{formatCurrency(summary.totalOut)}</p>
           </CardContent>
         </Card>
       </section>

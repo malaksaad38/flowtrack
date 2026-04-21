@@ -10,13 +10,13 @@ interface ExpenseRowProps {
 
 export function ExpenseRow({ expense }: ExpenseRowProps) {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 transition-colors hover:bg-muted/40 relative h-full">
+    <div className="group flex flex-col gap-3 rounded-2xl border border-border/60 bg-background/50 backdrop-blur-sm p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:border-border hover:bg-muted/30 relative h-full">
       <div className="flex items-start justify-between gap-3">
         <Badge
           className={
             expense.type === "IN"
-              ? "border-primary/20 bg-primary/10 text-primary hover:bg-primary/20"
-              : "border-destructive/20 bg-destructive/10 text-destructive hover:bg-destructive/20"
+              ? "border-primary/20 bg-primary/10 text-primary group-hover:bg-primary/15 transition-colors"
+              : "border-destructive/20 bg-destructive/10 text-destructive group-hover:bg-destructive/15 transition-colors"
           }
         >
           {expense.type}
@@ -24,8 +24,8 @@ export function ExpenseRow({ expense }: ExpenseRowProps) {
         <p
           className={
             expense.type === "IN"
-              ? "text-lg font-bold text-primary"
-              : "text-lg font-bold text-destructive"
+              ? "text-xl font-bold text-primary tracking-tight"
+              : "text-xl font-bold text-destructive tracking-tight"
           }
         >
           {expense.type === "IN" ? "+" : "-"}
@@ -33,15 +33,15 @@ export function ExpenseRow({ expense }: ExpenseRowProps) {
         </p>
       </div>
 
-      <div className="min-w-0 flex-grow">
-        <p className="text-base font-semibold text-foreground mb-1">{expense.category}</p>
-        <p className="text-sm text-muted-foreground break-words line-clamp-2">
+      <div className="min-w-0 flex-grow mt-1">
+        <p className="text-base font-bold text-foreground mb-1 tracking-tight">{expense.category}</p>
+        <p className="text-sm text-muted-foreground leading-relaxed break-words line-clamp-2">
           {expense.note || "No note"}
         </p>
       </div>
 
-      <div className="flex items-center justify-between mt-2 pt-3 border-t border-border/50">
-        <span className="text-xs text-muted-foreground font-medium">{formatTransactionDate(expense.date)}</span>
+      <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/40">
+        <span className="text-xs text-muted-foreground/80 font-medium">{formatTransactionDate(expense.date)}</span>
         <DeleteButton transactionId={expense.id} />
       </div>
     </div>
@@ -50,40 +50,40 @@ export function ExpenseRow({ expense }: ExpenseRowProps) {
 
 export function ExpenseTableRow({ expense }: ExpenseRowProps) {
   return (
-    <tr className="border-b border-border/50 hover:bg-muted/40 transition-colors last:border-0">
-      <td className="px-4 py-3 align-middle">
+    <tr className="group/row border-b border-border/40 hover:bg-muted/40 transition-colors last:border-0">
+      <td className="px-5 py-4 align-middle">
         <Badge
           className={
             expense.type === "IN"
-              ? "border-primary/20 bg-primary/10 text-primary hover:bg-primary/20"
-              : "border-destructive/20 bg-destructive/10 text-destructive hover:bg-destructive/20"
+              ? "border-primary/20 bg-primary/10 text-primary group-hover/row:bg-primary/20 transition-colors"
+              : "border-destructive/20 bg-destructive/10 text-destructive group-hover/row:bg-destructive/20 transition-colors"
           }
         >
           {expense.type}
         </Badge>
       </td>
-      <td className="px-4 py-3 align-middle text-sm text-muted-foreground whitespace-nowrap">
+      <td className="px-5 py-4 align-middle text-sm text-muted-foreground/90 whitespace-nowrap font-medium">
         {formatTransactionDate(expense.date)}
       </td>
-      <td className="px-4 py-3 align-middle text-sm font-semibold text-foreground whitespace-nowrap">
+      <td className="px-5 py-4 align-middle text-sm font-bold text-foreground whitespace-nowrap tracking-tight">
         {expense.category}
       </td>
-      <td className="px-4 py-3 align-middle text-sm text-muted-foreground max-w-xs truncate">
-        {expense.note || <span className="text-muted-foreground/50 italic">No note</span>}
+      <td className="px-5 py-4 align-middle text-sm text-muted-foreground/90 max-w-xs truncate">
+        {expense.note || <span className="text-muted-foreground/40 italic font-medium">No note</span>}
       </td>
-      <td className="px-4 py-3 align-middle text-right">
+      <td className="px-5 py-4 align-middle text-right">
         <span
           className={
             expense.type === "IN"
-              ? "text-sm font-bold text-primary whitespace-nowrap"
-              : "text-sm font-bold text-destructive whitespace-nowrap"
+              ? "text-base font-bold text-primary whitespace-nowrap tracking-tight"
+              : "text-base font-bold text-destructive whitespace-nowrap tracking-tight"
           }
         >
           {expense.type === "IN" ? "+" : "-"}
           {formatCurrency(expense.amount)}
         </span>
       </td>
-      <td className="px-4 py-3 align-middle text-center w-14">
+      <td className="px-5 py-4 align-middle text-center w-16">
         <DeleteButton transactionId={expense.id} />
       </td>
     </tr>
