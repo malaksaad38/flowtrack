@@ -126,12 +126,7 @@ export function parseQuickTransaction(input: string, fallbackType: TransactionTy
   const tokens = withoutAmount.split(" ").filter(Boolean);
   const strippedTokens = tokens.map(stripToken);
 
-  let type: TransactionType = fallbackType;
-  if (strippedTokens.some((token) => IN_HINTS.has(token))) {
-    type = "IN";
-  } else if (strippedTokens.some((token) => OUT_HINTS.has(token))) {
-    type = "OUT";
-  }
+  const type: TransactionType = fallbackType;
 
   const noteTokens = tokens.filter((token) => !CONTROL_WORDS.has(stripToken(token)));
   const categoryToken = noteTokens.find((token) => !CATEGORY_STOP_WORDS.has(stripToken(token)));
