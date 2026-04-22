@@ -29,8 +29,6 @@ export interface ParsedTransactionInput {
   note: string | null;
 }
 
-const IN_HINTS = new Set(["in", "received", "receive", "salary"]);
-const OUT_HINTS = new Set(["out", "spent", "spend", "food", "chai"]);
 const CONTROL_WORDS = new Set(["in", "out", "received", "receive", "spent", "spend"]);
 const CATEGORY_STOP_WORDS = new Set(["for", "on", "at", "from", "the", "a", "an", "my"]);
 
