@@ -147,7 +147,7 @@ export function ExpenseForm() {
               onChange={(event) => setQuickInput(event.target.value)}
               autoComplete="off"
               required
-              className="flex-1 h-11 rounded-2xl min-w-0 bg-background/50 focus-visible:bg-background"
+              className="flex-1 h-11"
             />
           </div>
           <Button

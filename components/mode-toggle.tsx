@@ -5,9 +5,9 @@ import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 
 const options = [
-    { id: "light",  label: "Light",  Icon: Sun,     activeClass: "border-amber-400 text-amber-600" },
-    { id: "system", label: "System", Icon: Monitor, activeClass: "border-blue-500 text-blue-600"  },
-    { id: "dark",   label: "Dark",   Icon: Moon,    activeClass: "border-violet-500 text-violet-600" },
+    { id: "light", Icon: Sun },
+    { id: "system", Icon: Monitor },
+    { id: "dark", Icon: Moon },
 ] as const;
 
 export function ModeToggle() {
@@ -15,23 +15,36 @@ export function ModeToggle() {
     const current = theme ?? "system";
 
     return (
-        <div className="inline-flex items-center gap-0.5 md:gap-2">
-            {options.map(({ id, label, Icon, activeClass }) => {
+        <div className="relative inline-flex items-center rounded-full border bg-muted/40 p-1 backdrop-blur supports-[backdrop-filter]:bg-muted/30">
+
+            {/* Animated pill */}
+            <div
+                className={cn(
+                    "absolute top-1 bottom-1 w-8 rounded-full bg-background shadow-sm transition-all duration-300",
+                    current === "light" && "left-1",
+                    current === "system" && "left-1/2 -translate-x-1/2",
+                    current === "dark" && "right-1"
+                )}
+            />
+
+            {options.map(({ id, Icon }) => {
                 const isActive = current === id;
+
                 return (
                     <button
                         key={id}
                         onClick={() => setTheme(id)}
-                        aria-label={`${label} mode`}
-                        className={cn(
-                            "flex items-center gap-1.5 rounded-full border  p-2 text-[13px] font-medium tracking-wide transition-all duration-150",
-                            isActive
-                                ? activeClass
-                                : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
-                        )}
+                        aria-label={`${id} mode`}
+                        className="relative z-10 flex h-8 w-8 items-center justify-center rounded-full transition-colors"
                     >
-                        <Icon className="h-3.5 w-3.5 shrink-0" />
-                        <span className="hidden sm:inline">{label}</span>
+                        <Icon
+                            className={cn(
+                                "h-4 w-4 transition-all duration-200",
+                                isActive
+                                    ? "text-foreground scale-100"
+                                    : "text-muted-foreground scale-90 hover:scale-100"
+                            )}
+                        />
                     </button>
                 );
             })}
