@@ -29,15 +29,8 @@ export interface ParsedTransactionInput {
   note: string | null;
 }
 
-const CONTROL_WORDS = new Set(["in", "out", "received", "receive", "spent", "spend"]);
-const CATEGORY_STOP_WORDS = new Set(["for", "on", "at", "from", "the", "a", "an", "my"]);
-
 function normalizeWhitespace(value: string) {
   return value.trim().replace(/\s+/g, " ");
-}
-
-function stripToken(value: string) {
-  return value.toLowerCase().replace(/[^a-z]/g, "");
 }
 
 function toTitleCase(value: string) {
@@ -121,20 +114,14 @@ export function parseQuickTransaction(input: string, fallbackType: TransactionTy
     `${normalized.slice(0, amountIndex)} ${normalized.slice(amountIndex + amountText.length)}`
   );
 
-  const tokens = withoutAmount.split(" ").filter(Boolean);
-  const strippedTokens = tokens.map(stripToken);
-
   const type: TransactionType = fallbackType;
-
-  const noteTokens = tokens.filter((token) => !CONTROL_WORDS.has(stripToken(token)));
-  const categoryToken = noteTokens.find((token) => !CATEGORY_STOP_WORDS.has(stripToken(token)));
-  const category = categoryToken ? toTitleCase(categoryToken) : type === "IN" ? "Income" : "Expense";
-  const noteSource = normalizeWhitespace(noteTokens.join(" ")) || withoutAmount;
+  const noteSource = withoutAmount ? toTitleCase(withoutAmount) : null;
+  const category = noteSource ? toTitleCase(noteSource.split(" ")[0]) : type === "IN" ? "Income" : "Expense";
 
   return {
     amount,
     type,
     category,
-    note: noteSource ? toTitleCase(noteSource) : null,
+    note: noteSource,
   };
 }
