@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Lock, LogIn, Mail } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -81,23 +82,25 @@ export default function LoginPage() {
   return (
     <div className="w-full max-w-sm">
       <div className="mb-8 space-y-1">
-        <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
+        <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
+          <LogIn className="h-5 w-5 text-primary" />
+          Welcome back
+        </h1>
         <p className="text-sm text-muted-foreground">
           Sign in to your FlowTrack account.
         </p>
       </div>
 
-      {/* Google Sign-In */}
       <Button
         id="login-google"
         type="button"
         variant="outline"
-        className="w-full gap-2 mb-4"
+        className="mb-4 w-full gap-2"
         onClick={handleGoogle}
         disabled={googleLoading || loading}
       >
         <GoogleIcon />
-        {googleLoading ? "Redirecting…" : "Continue with Google"}
+        {googleLoading ? "Redirecting..." : "Continue with Google"}
       </Button>
 
       <div className="relative mb-4">
@@ -111,7 +114,10 @@ export default function LoginPage() {
 
       <form onSubmit={handleSubmit} className="space-y-4" id="login-form">
         <div className="space-y-2">
-          <Label htmlFor="login-email">Email</Label>
+          <Label htmlFor="login-email" className="inline-flex items-center gap-1.5">
+            <Mail className="h-3.5 w-3.5" />
+            Email
+          </Label>
           <Input
             id="login-email"
             type="email"
@@ -124,11 +130,14 @@ export default function LoginPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="login-password">Password</Label>
+          <Label htmlFor="login-password" className="inline-flex items-center gap-1.5">
+            <Lock className="h-3.5 w-3.5" />
+            Password
+          </Label>
           <Input
             id="login-password"
             type="password"
-            placeholder="••••••••"
+            placeholder="........"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -148,7 +157,8 @@ export default function LoginPage() {
           className="w-full"
           disabled={loading || googleLoading}
         >
-          {loading ? "Signing in…" : "Sign in"}
+          <LogIn className="h-4 w-4" />
+          {loading ? "Signing in..." : "Sign in"}
         </Button>
       </form>
 

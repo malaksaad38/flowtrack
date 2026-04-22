@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { List, Plus } from "lucide-react";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/db/prisma";
 import { CashbookWorkspace } from "@/components/expense/cashbook-workspace";
+import type { Transaction } from "@/lib/transactions";
 
 export const metadata = {
   title: "Transactions - FlowTrack",
@@ -21,21 +23,28 @@ export default async function ExpensesPage() {
     );
   }
 
-  let transactions;
-  try {
-    transactions = await prisma.transaction.findMany({
+  const transactions = (await prisma.transaction
+    .findMany({
       where: { userId: session.id },
       orderBy: [{ date: "desc" }, { createdAt: "desc" }],
-    });
-  } catch {
-    transactions = [];
-  }
+    })
+    .catch(() => [])
+  ).map(
+    (transaction): Transaction => ({
+      ...transaction,
+      date: transaction.date.toISOString(),
+      createdAt: transaction.createdAt.toISOString(),
+    })
+  );
 
   return (
     <div className="space-y-6">
       <div className="flex sm:items-center items-start gap-2  justify-between flex-col sm:flex-row">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Transactions</h1>
+          <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
+            <List className="h-6 w-6 text-primary" />
+            Transactions
+          </h1>
           <p className="text-sm text-muted-foreground">Filter every IN and OUT entry in one feed.</p>
         </div>
         <Link
@@ -43,9 +52,7 @@ export default async function ExpensesPage() {
           id="expenses-add-btn"
           className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
+          <Plus className="h-4 w-4" />
           Quick add
         </Link>
       </div>

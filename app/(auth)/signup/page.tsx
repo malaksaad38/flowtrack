@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Lock, Mail, UserPlus, UserRound } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -94,23 +95,25 @@ export default function SignupPage() {
   return (
     <div className="w-full max-w-sm">
       <div className="mb-8 space-y-1">
-        <h1 className="text-2xl font-bold tracking-tight">Create account</h1>
+        <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
+          <UserPlus className="h-5 w-5 text-primary" />
+          Create account
+        </h1>
         <p className="text-sm text-muted-foreground">
           Start tracking your expenses for free.
         </p>
       </div>
 
-      {/* Google Sign-Up */}
       <Button
         id="signup-google"
         type="button"
         variant="outline"
-        className="w-full gap-2 mb-4"
+        className="mb-4 w-full gap-2"
         onClick={handleGoogle}
         disabled={googleLoading || loading}
       >
         <GoogleIcon />
-        {googleLoading ? "Redirecting…" : "Continue with Google"}
+        {googleLoading ? "Redirecting..." : "Continue with Google"}
       </Button>
 
       <div className="relative mb-4">
@@ -124,7 +127,10 @@ export default function SignupPage() {
 
       <form onSubmit={handleSubmit} className="space-y-4" id="signup-form">
         <div className="space-y-2">
-          <Label htmlFor="signup-name">Name</Label>
+          <Label htmlFor="signup-name" className="inline-flex items-center gap-1.5">
+            <UserRound className="h-3.5 w-3.5" />
+            Name
+          </Label>
           <Input
             id="signup-name"
             type="text"
@@ -136,7 +142,10 @@ export default function SignupPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="signup-email">Email</Label>
+          <Label htmlFor="signup-email" className="inline-flex items-center gap-1.5">
+            <Mail className="h-3.5 w-3.5" />
+            Email
+          </Label>
           <Input
             id="signup-email"
             type="email"
@@ -149,7 +158,10 @@ export default function SignupPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="signup-password">Password</Label>
+          <Label htmlFor="signup-password" className="inline-flex items-center gap-1.5">
+            <Lock className="h-3.5 w-3.5" />
+            Password
+          </Label>
           <Input
             id="signup-password"
             type="password"
@@ -162,7 +174,10 @@ export default function SignupPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="signup-confirm">Confirm password</Label>
+          <Label htmlFor="signup-confirm" className="inline-flex items-center gap-1.5">
+            <Lock className="h-3.5 w-3.5" />
+            Confirm password
+          </Label>
           <Input
             id="signup-confirm"
             type="password"
@@ -186,7 +201,8 @@ export default function SignupPage() {
           className="w-full"
           disabled={loading || googleLoading}
         >
-          {loading ? "Creating account…" : "Create account"}
+          <UserPlus className="h-4 w-4" />
+          {loading ? "Creating account..." : "Create account"}
         </Button>
       </form>
 

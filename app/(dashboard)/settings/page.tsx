@@ -2,6 +2,7 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { getSession } from "@/lib/session";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LogoutButton } from "@/components/logout-button";
+import { MonitorCog, Palette, UserRound } from "lucide-react";
 
 export default async function SettingsPage() {
   const user = await getSession();
@@ -9,7 +10,10 @@ export default async function SettingsPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div className="space-y-1">
-        <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
+        <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
+          <MonitorCog className="h-6 w-6 text-primary" />
+          Settings
+        </h1>
         <p className="text-sm text-muted-foreground">
           Manage your account settings and preferences.
         </p>
@@ -18,7 +22,10 @@ export default async function SettingsPage() {
       <div className="grid gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Appearance</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Palette className="h-4 w-4 text-primary" />
+              Appearance
+            </CardTitle>
             <CardDescription>Customize the look and feel of FlowTrack.</CardDescription>
           </CardHeader>
           <CardContent className="flex items-center justify-between">
@@ -32,7 +39,10 @@ export default async function SettingsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Account</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <UserRound className="h-4 w-4 text-primary" />
+              Account
+            </CardTitle>
             <CardDescription>Manage your authentication session.</CardDescription>
           </CardHeader>
           <CardContent>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PropsWithChildren } from "react";
+import { CheckCircle2, Sparkles } from "lucide-react";
 
 export default function AuthLayout({ children }: PropsWithChildren) {
   return (
@@ -9,10 +10,7 @@ export default function AuthLayout({ children }: PropsWithChildren) {
         <div>
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-foreground/10">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary-foreground">
-                <path d="M12 2v20M2 12h20" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
+              <Sparkles className="h-4 w-4 text-primary-foreground" />
             </div>
             <span className="text-lg font-bold text-primary-foreground">FlowTrack</span>
           </div>
@@ -30,9 +28,7 @@ export default function AuthLayout({ children }: PropsWithChildren) {
               "Monthly insights at a glance",
             ].map((f) => (
               <div key={f} className="flex items-center gap-2 text-primary-foreground/80">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
+                <CheckCircle2 className="h-4 w-4" />
                 <span className="text-sm">{f}</span>
               </div>
             ))}
@@ -47,10 +43,7 @@ export default function AuthLayout({ children }: PropsWithChildren) {
       <div className="flex flex-1 flex-col items-center justify-center p-6">
         <div className="mb-8 flex items-center gap-2 lg:hidden">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary-foreground">
-              <path d="M12 2v20M2 12h20" />
-              <circle cx="12" cy="12" r="3" />
-            </svg>
+            <Sparkles className="h-4 w-4 text-primary-foreground" />
           </div>
           <Link href="/" className="text-lg font-bold">FlowTrack</Link>
         </div>

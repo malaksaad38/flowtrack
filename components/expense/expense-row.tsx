@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import { CalendarDays, StickyNote } from "lucide-react";
 import { DeleteButton } from "./delete-button";
 import { formatCurrency, formatTransactionDate, type Transaction } from "@/lib/transactions";
 
@@ -35,13 +36,17 @@ export function ExpenseRow({ expense }: ExpenseRowProps) {
 
       <div className="min-w-0 flex-grow mt-1">
         <p className="text-base font-bold text-foreground mb-1 tracking-tight">{expense.category}</p>
-        <p className="text-sm text-muted-foreground leading-relaxed break-words line-clamp-2">
+        <p className="flex items-start gap-1.5 text-sm text-muted-foreground leading-relaxed break-words line-clamp-2">
+          <StickyNote className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           {expense.note || "No note"}
         </p>
       </div>
 
       <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/40">
-        <span className="text-xs text-muted-foreground/80 font-medium">{formatTransactionDate(expense.date)}</span>
+        <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/80 font-medium">
+          <CalendarDays className="h-3.5 w-3.5" />
+          {formatTransactionDate(expense.date)}
+        </span>
         <DeleteButton transactionId={expense.id} />
       </div>
     </div>
@@ -63,13 +68,19 @@ export function ExpenseTableRow({ expense }: ExpenseRowProps) {
         </Badge>
       </td>
       <td className="px-5 py-4 align-middle text-sm text-muted-foreground/90 whitespace-nowrap font-medium">
-        {formatTransactionDate(expense.date)}
+        <span className="inline-flex items-center gap-1.5">
+          <CalendarDays className="h-3.5 w-3.5" />
+          {formatTransactionDate(expense.date)}
+        </span>
       </td>
       <td className="px-5 py-4 align-middle text-sm font-bold text-foreground whitespace-nowrap tracking-tight">
         {expense.category}
       </td>
       <td className="px-5 py-4 align-middle text-sm text-muted-foreground/90 max-w-xs truncate">
-        {expense.note || <span className="text-muted-foreground/40 italic font-medium">No note</span>}
+        <span className="inline-flex items-center gap-1.5">
+          <StickyNote className="h-3.5 w-3.5 shrink-0" />
+          {expense.note || <span className="text-muted-foreground/40 italic font-medium">No note</span>}
+        </span>
       </td>
       <td className="px-5 py-4 align-middle text-right">
         <span

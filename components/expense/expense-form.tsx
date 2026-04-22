@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { useAppStore } from "@/store/app-store";
 import { parseQuickTransaction, type Transaction, type TransactionType } from "@/lib/transactions";
 import { format, isToday } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, CalendarDays, Plus } from "lucide-react";
 
 const TRANSACTIONS_QUERY_KEY = ["transactions"];
 
@@ -107,6 +107,7 @@ export function ExpenseForm() {
                   : "border-red-500 text-red-500 bg-red-400/30 hover:bg-red-400/30")
             )}
           >
+            {type === "IN" ? <ArrowDownRight className="h-4 w-4" /> : <ArrowUpRight className="h-4 w-4" />}
             {type}
           </Button>
         ))}
@@ -125,7 +126,7 @@ export function ExpenseForm() {
                     !date && "text-muted-foreground"
                   )}
                 >
-                  <CalendarIcon className="h-5 w-5" />
+                  <CalendarDays className="h-5 w-5" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-4 rounded-3xl border-border/50 bg-background/80 backdrop-blur-xl shadow-2xl" align="start">
@@ -156,6 +157,7 @@ export function ExpenseForm() {
             disabled={mutation.isPending}
             className="h-11 rounded-2xl px-6 w-full sm:w-auto"
           >
+            <Plus className="h-4 w-4" />
             {mutation.isPending ? "Saving..." : "Add"}
           </Button>
         </div>

@@ -4,6 +4,7 @@ import { ExpenseRow, ExpenseTableRow } from "./expense-row";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowDownRight, ArrowUpRight, CircleDollarSign, Loader2, ReceiptText } from "lucide-react";
 import { useAppStore } from "@/store/app-store";
 import { formatCurrency, type Transaction } from "@/lib/transactions";
 
@@ -34,17 +35,26 @@ export function ExpenseList({
   const totalForFilter = transactions.reduce((sum, transaction) => sum + transaction.amount, 0);
 
   return (
-    <div className="rounded-3xl border border-border/50 bg-background/40 backdrop-blur-sm shadow-sm overflow-hidden flex flex-col">
+    <div className="rounded-3xl border border-border/50 bg-background/40 backdrop-blur-sm shadow-sm overflow-hidden flex flex-col pb-4">
       <CardHeader className="space-y-4 px-6 py-5 bg-muted/10 border-b border-border/50">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <CardTitle className="text-lg font-bold tracking-tight">Transactions</CardTitle>
+            <CardTitle className="flex items-center gap-2 text-lg font-bold tracking-tight">
+              <ReceiptText className="h-5 w-5 text-primary" />
+              Transactions
+            </CardTitle>
             <p className="text-sm text-muted-foreground/80">Clean, fast cashbook history.</p>
           </div>
           <div className="text-sm text-muted-foreground">
+            <CircleDollarSign className="mr-1 inline h-4 w-4" />
             <span className="font-medium text-foreground">{formatCurrency(totalForFilter)}</span>
             <span className="ml-1.5">({transactions.length} items)</span>
-            {isRefreshing ? <span className="ml-2 text-xs">Refreshing...</span> : null}
+            {isRefreshing ? (
+              <span className="ml-2 inline-flex items-center gap-1 text-xs">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                Refreshing...
+              </span>
+            ) : null}
           </div>
         </div>
 
@@ -62,6 +72,8 @@ export function ExpenseList({
                     : "rounded-full"
                 }
               >
+                {type === "IN" ? <ArrowDownRight className="h-4 w-4" /> : null}
+                {type === "OUT" ? <ArrowUpRight className="h-4 w-4" /> : null}
                 {type}
               </Button>
             ))}
@@ -83,6 +95,7 @@ export function ExpenseList({
           </>
         ) : visibleTransactions.length === 0 ? (
           <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-border py-16 text-center">
+            <ReceiptText className="h-8 w-8 text-muted-foreground/60" />
             <p className="font-medium text-muted-foreground">No transactions yet</p>
             <p className="text-sm text-muted-foreground/70">Add your first IN or OUT entry above.</p>
           </div>

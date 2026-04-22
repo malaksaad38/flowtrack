@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { ArrowDownRight, ArrowUpRight, Landmark, Sun } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAppStore } from "@/store/app-store";
 import { ExpenseForm } from "./expense-form";
@@ -71,10 +72,11 @@ export function CashbookWorkspace({
   return (
     <div className="space-y-6">
       <section className="grid gap-4 sm:grid-cols-3">
-        <Card className="relative overflow-hidden border-primary/20 bg-background/50 backdrop-blur-lg shadow-md transition-all hover:shadow-lg hover:border-primary/30">
+        <Card className="relative overflow-hidden border-primary/20 bg-background/50 backdrop-blur-lg shadow-md transition-all hover:shadow-lg hover:border-primary/30 ">
           <div className="absolute right-0 top-0 h-32 w-32 -translate-y-8 translate-x-8 rounded-full bg-primary/10 blur-3xl" />
           <CardHeader className="pb-2 relative z-10">
-            <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
+            <CardTitle className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
+              <Landmark className="h-3.5 w-3.5" />
               Total Balance
             </CardTitle>
           </CardHeader>
@@ -86,7 +88,8 @@ export function CashbookWorkspace({
         <Card className="relative overflow-hidden border-primary/10 bg-background/50 backdrop-blur-lg shadow-sm transition-all hover:shadow-md hover:border-primary/20">
           <div className="absolute right-0 top-0 h-24 w-24 -translate-y-4 translate-x-4 rounded-full bg-primary/5 blur-2xl" />
           <CardHeader className="pb-2 relative z-10">
-            <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
+            <CardTitle className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
+              <ArrowDownRight className="h-3.5 w-3.5 text-primary" />
               Total IN
             </CardTitle>
           </CardHeader>
@@ -98,7 +101,8 @@ export function CashbookWorkspace({
         <Card className="relative overflow-hidden border-destructive/10 bg-background/50 backdrop-blur-lg shadow-sm transition-all hover:shadow-md hover:border-destructive/20">
           <div className="absolute right-0 top-0 h-24 w-24 -translate-y-4 translate-x-4 rounded-full bg-destructive/5 blur-2xl" />
           <CardHeader className="pb-2 relative z-10">
-            <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
+            <CardTitle className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
+              <ArrowUpRight className="h-3.5 w-3.5 text-destructive" />
               Total OUT
             </CardTitle>
           </CardHeader>
@@ -110,9 +114,12 @@ export function CashbookWorkspace({
 
       <ExpenseForm />
 
-      <Card>
+        <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-semibold">Daily Summary</CardTitle>
+          <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+            <Sun className="h-4 w-4 text-primary" />
+            Daily Summary
+          </CardTitle>
           <div className="flex flex-wrap gap-2 pt-2 text-sm">
             <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-primary">
               IN {formatCurrency(summary.todayIn)}
