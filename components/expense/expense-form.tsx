@@ -9,6 +9,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/store/app-store";
 import { parseQuickTransaction, type Transaction, type TransactionType } from "@/lib/transactions";
+import { format, isToday } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 
 const TRANSACTIONS_QUERY_KEY = ["transactions"];
 
@@ -98,11 +100,11 @@ export function ExpenseForm() {
             variant="outline"
             onClick={() => setFallbackType(type)}
             className={cn(
-              "h-11 flex-1 rounded-2xl transition-all duration-300 outline-none hover:bg-background/80 font-semibold tracking-wide",
+              "h-11 flex-1  font-semibold tracking-wide",
               fallbackType === type &&
                 (type === "IN"
-                  ? "border-primary/30 bg-primary/10 text-primary shadow-sm hover:bg-primary/15"
-                  : "border-destructive/30 bg-destructive/10 text-destructive shadow-sm hover:bg-destructive/15")
+                  ? "border-green-500 text-green-500 bg-green-400/30 hover:bg-green-400/30"
+                  : "border-red-500 text-red-500 bg-red-400/30 hover:bg-red-400/30")
             )}
           >
             {type}
@@ -110,55 +112,58 @@ export function ExpenseForm() {
         ))}
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <div className="flex flex-1 gap-2 relative w-full">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                type="button"
-                className={cn(
-                  "h-11 w-11 shrink-0 rounded-2xl p-0 flex items-center justify-center",
-                  !date && "text-muted-foreground"
-                )}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                </svg>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={(d) => d && setDate(d)}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="flex flex-1 gap-2 relative w-full">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  type="button"
+                  className={cn(
+                    "h-11 w-11 shrink-0 rounded-2xl p-0 flex items-center justify-center",
+                    !date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="h-5 w-5" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-4 rounded-3xl border-border/50 bg-background/80 backdrop-blur-xl shadow-2xl" align="start">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={(d) => d && setDate(d)}
+                  initialFocus
+                  className="p-0"
+                />
+              </PopoverContent>
+            </Popover>
 
-          <Input
-            id="transaction-quick-input"
-            type="text"
-            placeholder="Enter amount and note"
-            value={quickInput}
-            onChange={(event) => setQuickInput(event.target.value)}
-            autoComplete="off"
-            required
-            className="flex-1 h-11 rounded-2xl min-w-0"
-          />
+            <Input
+              id="transaction-quick-input"
+              type="text"
+              placeholder="Enter amount and note"
+              value={quickInput}
+              onChange={(event) => setQuickInput(event.target.value)}
+              autoComplete="off"
+              required
+              className="flex-1 h-11 rounded-2xl min-w-0 bg-background/50 focus-visible:bg-background"
+            />
+          </div>
+          <Button
+            id="transaction-submit"
+            type="submit"
+            disabled={mutation.isPending}
+            className="h-11 rounded-2xl px-6 w-full sm:w-auto"
+          >
+            {mutation.isPending ? "Saving..." : "Add"}
+          </Button>
         </div>
-        <Button
-          id="transaction-submit"
-          type="submit"
-          disabled={mutation.isPending}
-          className="h-11 rounded-2xl px-6 w-full sm:w-auto"
-        >
-          {mutation.isPending ? "Saving..." : "Add"}
-        </Button>
+        {date && !isToday(date) && (
+          <div className="pl-14 text-[11px] text-muted-foreground/70">
+            Selected date: <span className="text-foreground/80">{format(date, "PPP")}</span>
+          </div>
+        )}
       </div>
 
       {error ? (
