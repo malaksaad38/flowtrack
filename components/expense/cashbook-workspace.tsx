@@ -81,7 +81,7 @@ export function CashbookWorkspace({
             </CardTitle>
           </CardHeader>
           <CardContent className="relative z-10">
-            <p className="text-3xl font-extrabold tracking-tight text-foreground">{formatCurrency(summary.balance)}</p>
+            <p className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">{formatCurrency(summary.balance)}</p>
           </CardContent>
         </Card>
 
@@ -94,7 +94,7 @@ export function CashbookWorkspace({
             </CardTitle>
           </CardHeader>
           <CardContent className="relative z-10">
-            <p className="text-3xl font-extrabold tracking-tight text-primary">{formatCurrency(summary.totalIn)}</p>
+            <p className="text-2xl font-extrabold tracking-tight text-primary sm:text-3xl">{formatCurrency(summary.totalIn)}</p>
           </CardContent>
         </Card>
 
@@ -107,7 +107,7 @@ export function CashbookWorkspace({
             </CardTitle>
           </CardHeader>
           <CardContent className="relative z-10">
-            <p className="text-3xl font-extrabold tracking-tight text-destructive">{formatCurrency(summary.totalOut)}</p>
+            <p className="text-2xl font-extrabold tracking-tight text-destructive sm:text-3xl">{formatCurrency(summary.totalOut)}</p>
           </CardContent>
         </Card>
       </section>

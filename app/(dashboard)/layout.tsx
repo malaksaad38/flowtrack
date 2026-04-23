@@ -13,8 +13,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
       </div>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto pb-20 lg:pb-0">
-        <div className="mx-auto max-w-5xl p-4 md:p-8">
+      <main className="flex-1 overflow-x-hidden overflow-y-auto pb-[calc(5.5rem+env(safe-area-inset-bottom))] lg:pb-0">
+        <div className="mx-auto w-full max-w-5xl px-3 py-4 sm:px-4 md:p-8">
           {children}
         </div>
       </main>

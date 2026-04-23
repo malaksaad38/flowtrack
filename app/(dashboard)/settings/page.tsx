@@ -8,7 +8,7 @@ export default async function SettingsPage() {
   const user = await getSession();
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="mx-auto max-w-2xl space-y-5 sm:space-y-6">
       <div className="space-y-1">
         <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
           <MonitorCog className="h-6 w-6 text-primary" />
@@ -28,7 +28,7 @@ export default async function SettingsPage() {
             </CardTitle>
             <CardDescription>Customize the look and feel of FlowTrack.</CardDescription>
           </CardHeader>
-          <CardContent className="flex items-center justify-between">
+          <CardContent className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col space-y-1">
               <span className="text-sm font-medium leading-none">Theme</span>
               <span className="text-sm text-muted-foreground">Switch between light and dark mode.</span>
@@ -48,7 +48,7 @@ export default async function SettingsPage() {
           <CardContent>
             <div className="flex flex-col gap-6">
               {/* Profile Details */}
-              <div className="flex items-center gap-4 p-4 rounded-xl border border-border bg-muted/20">
+              <div className="flex items-center gap-4 rounded-xl border border-border bg-muted/20 p-4">
                 {user?.image ? (
                   <img src={user.image} alt={user.name || "User"} className="h-12 w-12 rounded-full object-cover shadow-sm bg-muted" />
                 ) : (
@@ -56,9 +56,9 @@ export default async function SettingsPage() {
                     {user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || "?"}
                   </div>
                 )}
-                <div className="flex flex-col">
-                  <span className="font-semibold text-foreground text-sm lg:text-base">{user?.name || "FlowTrack User"}</span>
-                  <span className="text-xs lg:text-sm text-muted-foreground">{user?.email || "Signed in"}</span>
+                <div className="min-w-0 flex flex-col">
+                  <span className="truncate text-sm font-semibold text-foreground lg:text-base">{user?.name || "FlowTrack User"}</span>
+                  <span className="truncate text-xs text-muted-foreground lg:text-sm">{user?.email || "Signed in"}</span>
                 </div>
               </div>
 

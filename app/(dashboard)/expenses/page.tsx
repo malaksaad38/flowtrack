@@ -39,7 +39,7 @@ export default async function ExpensesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex sm:items-center items-start gap-2  justify-between flex-col sm:flex-row">
+      <div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
             <List className="h-6 w-6 text-primary" />
@@ -50,7 +50,7 @@ export default async function ExpensesPage() {
         <Link
           href="/add"
           id="expenses-add-btn"
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 sm:w-auto sm:justify-start"
         >
           <Plus className="h-4 w-4" />
           Quick add

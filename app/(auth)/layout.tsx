@@ -40,14 +40,14 @@ export default function AuthLayout({ children }: PropsWithChildren) {
       </div>
 
       {/* Form panel */}
-      <div className="flex flex-1 flex-col items-center justify-center p-6">
-        <div className="mb-8 flex items-center gap-2 lg:hidden">
+      <div className="flex flex-1 flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-10">
+        <div className="mb-6 flex items-center gap-2 lg:hidden sm:mb-8">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
             <Sparkles className="h-4 w-4 text-primary-foreground" />
           </div>
           <Link href="/" className="text-lg font-bold">FlowTrack</Link>
         </div>
-        {children}
+        <div className="w-full max-w-sm">{children}</div>
       </div>
     </div>
   );

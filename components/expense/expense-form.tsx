@@ -87,7 +87,7 @@ export function ExpenseForm() {
     >
       <div className="space-y-1.5">
         <p className="text-base font-bold tracking-tight">Quick add</p>
-        <p className="text-sm text-muted-foreground/80">
+        <p className="text-xs text-muted-foreground/80 sm:text-sm">
           Try `500 in salary`, `300 out food`, `1000 received`, or `200 spent`.
         </p>
       </div>
@@ -129,7 +129,7 @@ export function ExpenseForm() {
                   <CalendarDays className="h-5 w-5" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-4 rounded-3xl border-border/50 bg-background/80 backdrop-blur-xl shadow-2xl" align="start">
+              <PopoverContent className="w-[min(92vw,22rem)] rounded-3xl border-border/50 bg-background/80 p-3 shadow-2xl backdrop-blur-xl sm:w-auto sm:p-4" align="start">
                 <Calendar
                   mode="single"
                   selected={date}

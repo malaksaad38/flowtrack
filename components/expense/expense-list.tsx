@@ -224,184 +224,185 @@ export function ExpenseList({
 
   return (
     <div className="flex flex-col overflow-hidden rounded-3xl border border-border/50 bg-background/40 pb-4 shadow-sm backdrop-blur-sm">
-      <CardHeader className="space-y-4 border-b border-border/50 bg-muted/10 px-6 py-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <CardTitle className="flex items-center gap-2 text-lg font-bold tracking-tight">
-              <ReceiptText className="h-5 w-5 text-primary" />
-              Transactions
-            </CardTitle>
-            <p className="text-sm text-muted-foreground/80">Filter by date/category and review reports instantly.</p>
-          </div>
-          <div className="text-sm text-muted-foreground">
-            <CircleDollarSign className="mr-1 inline h-4 w-4" />
-            <span className="font-medium text-foreground">{formatCurrency(reportSummary.balance)}</span>
-            <span className="ml-1.5">net ({transactions.length} items)</span>
-            {isRefreshing ? (
-              <span className="ml-2 inline-flex items-center gap-1 text-xs">
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                Refreshing...
-              </span>
-            ) : null}
-          </div>
-        </div>
+        <CardHeader className="space-y-4 border-b border-border/50 bg-muted/10 px-3 py-4 sm:px-6 sm:py-5">
+            {/* Top Section */}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 
-        {showFilters ? (
-          <div className="space-y-3 rounded-2xl border border-border/50 bg-background/60 p-3">
-            <div className="flex flex-wrap gap-2">
-              {(["ALL", "IN", "OUT"] as const).map((type) => (
-                <Button
-                  key={type}
-                  type="button"
-                  variant="outline"
-                  onClick={() => setFilterType(type)}
-                  className={
-                    filterType === type
-                      ? "rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
-                      : "rounded-full"
-                  }
-                >
-                  {type === "IN" ? <ArrowDownRight className="h-4 w-4" /> : null}
-                  {type === "OUT" ? <ArrowUpRight className="h-4 w-4" /> : null}
-                  {type}
-                </Button>
-              ))}
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {([
-                ["ALL", "All dates"],
-                ["TODAY", "Today"],
-                ["YESTERDAY", "Yesterday"],
-                ["THIS_MONTH", "This month"],
-                ["LAST_7_DAYS", "Last 7 days"],
-                ["CUSTOM", "Custom range"],
-              ] as const).map(([preset, label]) => (
-                <Button
-                  key={preset}
-                  type="button"
-                  variant="outline"
-                  onClick={() => setDatePreset(preset)}
-                  className={
-                    datePreset === preset
-                      ? "rounded-full bg-primary/10 text-primary border-primary/30 hover:bg-primary/15"
-                      : "rounded-full"
-                  }
-                >
-                  <CalendarDays className="h-3.5 w-3.5" />
-                  {label}
-                </Button>
-              ))}
-            </div>
-
-            {datePreset === "CUSTOM" ? (
-              <div className="grid gap-2 sm:grid-cols-2">
-                <Input
-                  type="date"
-                  value={rangeStart}
-                  onChange={(event) => setRangeStart(event.target.value)}
-                  aria-label="Range start date"
-                />
-                <Input
-                  type="date"
-                  value={rangeEnd}
-                  onChange={(event) => setRangeEnd(event.target.value)}
-                  aria-label="Range end date"
-                />
-              </div>
-            ) : null}
-
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <div className="inline-flex items-center gap-2">
-                <FolderKanban className="h-4 w-4 text-muted-foreground" />
-                <Select
-                  value={selectedCategory}
-                  onValueChange={(value) => setSelectedCategory(value)}
-                >
-                  <SelectTrigger className="h-9 min-w-44">
-                    <SelectValue placeholder="Category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ALL">All categories</SelectItem>
-                    {categories.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <ChartColumnIncreasing className="h-4 w-4 text-muted-foreground" />
-                <Button
-                  type="button"
-                  variant="outline"
-                  className={reportGranularity === "DAILY" ? "bg-primary text-primary-foreground" : ""}
-                  onClick={() => setReportGranularity("DAILY")}
-                >
-                  Daily
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className={reportGranularity === "MONTHLY" ? "bg-primary text-primary-foreground" : ""}
-                  onClick={() => setReportGranularity("MONTHLY")}
-                >
-                  Monthly
-                </Button>
-              </div>
-            </div>
-
-            {canPaginate ? (
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <div className="inline-flex items-center gap-2">
-                  <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Items per page</span>
-                  <Select value={pageSize} onValueChange={(value) => setPageSize(value as PageSize)}>
-                    <SelectTrigger className="h-9 min-w-28">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="10">10</SelectItem>
-                      <SelectItem value="20">20</SelectItem>
-                      <SelectItem value="30">30</SelectItem>
-                      <SelectItem value="ALL">All</SelectItem>
-                    </SelectContent>
-                  </Select>
+                {/* Title */}
+                <div className="space-y-1">
+                    <CardTitle className="flex items-center gap-2 text-base sm:text-lg font-semibold sm:font-bold tracking-tight">
+                        <ReceiptText className="h-5 w-5 text-primary shrink-0" />
+                        Transactions
+                    </CardTitle>
+                    <p className="text-xs sm:text-sm text-muted-foreground/80 leading-relaxed">
+                        Filter by date/category and review reports instantly.
+                    </p>
                 </div>
 
-                <div className="inline-flex items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-                    disabled={currentPage <= 1}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                    Prev
-                  </Button>
-                  <span className="text-sm text-muted-foreground">
-                    Page <span className="font-medium text-foreground">{currentPage}</span> of {totalPages}
-                  </span>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
-                    disabled={currentPage >= totalPages}
-                  >
-                    Next
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ) : null}
-          </div>
-        ) : null}
-      </CardHeader>
+                {/* Summary */}
+                <div className="flex items-center justify-between sm:block sm:text-right text-xs sm:text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                        <CircleDollarSign className="h-4 w-4" />
+                        <span className="font-medium text-foreground">
+          {formatCurrency(reportSummary.balance)}
+        </span>
+                    </div>
 
-      <CardContent className="space-y-3">
+                    <div className="flex items-center gap-2">
+        <span className="text-[11px] sm:text-xs">
+          ({transactions.length} items)
+        </span>
+
+                        {isRefreshing && (
+                            <span className="inline-flex items-center gap-1 text-[11px]">
+            <Loader2 className="h-3 w-3 animate-spin" />
+          </span>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Filters */}
+            {showFilters && (
+                <div className="space-y-4 rounded-2xl border border-border/50 bg-background/80 p-3 sm:p-4 max-w-full overflow-hidden">
+
+                    {/* Type Filter */}
+                    <div className="flex flex-wrap gap-2">
+                        {(["ALL", "IN", "OUT"] as const).map((type) => (
+                            <Button
+                                key={type}
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setFilterType(type)}
+                                className={`
+          flex items-center gap-1.5
+          rounded-full px-3 py-1.5
+          text-xs sm:text-sm
+          shrink-0
+          ${filterType === type
+                                    ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                                    : ""}
+        `}
+                            >
+                                {type === "IN" && <ArrowDownRight className="h-3.5 w-3.5 shrink-0" />}
+                                {type === "OUT" && <ArrowUpRight className="h-3.5 w-3.5 shrink-0" />}
+                                {type}
+                            </Button>
+                        ))}
+                    </div>
+
+                    {/* Date Filter */}
+                    <div className="flex flex-wrap gap-2">
+                        {([
+                            ["ALL", "All"],
+                            ["TODAY", "Today"],
+                            ["YESTERDAY", "Yesterday"],
+                            ["THIS_MONTH", "Month"],
+                            ["LAST_7_DAYS", "7d"],
+                            ["CUSTOM", "Custom"],
+                        ] as const).map(([preset, label]) => (
+                            <Button
+                                key={preset}
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setDatePreset(preset)}
+                                className={`
+          flex items-center gap-1.5
+          rounded-full px-3 py-1.5
+          text-xs sm:text-sm
+          shrink-0
+          ${datePreset === preset
+                                    ? "bg-primary/10 text-primary border-primary/30"
+                                    : ""}
+        `}
+                            >
+                                <CalendarDays className="h-3.5 w-3.5 shrink-0" />
+                                {label}
+                            </Button>
+                        ))}
+                    </div>
+
+                    {/* Custom Range */}
+                    {datePreset === "CUSTOM" && (
+                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                            <Input
+                                type="date"
+                                value={rangeStart}
+                                onChange={(e) => setRangeStart(e.target.value)}
+                                className="w-full"
+                            />
+                            <Input
+                                type="date"
+                                value={rangeEnd}
+                                onChange={(e) => setRangeEnd(e.target.value)}
+                                className="w-full"
+                            />
+                        </div>
+                    )}
+
+                    {/* Bottom Controls */}
+                    <div className="flex flex-col gap-3">
+
+                        {/* Category */}
+                        <div className="flex items-center gap-2 w-full">
+                            <FolderKanban className="h-4 w-4 text-muted-foreground shrink-0" />
+                            <Select
+                                value={selectedCategory}
+                                onValueChange={setSelectedCategory}
+                            >
+                                <SelectTrigger className="h-9 w-full">
+                                    <SelectValue placeholder="Category" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="ALL">All categories</SelectItem>
+                                    {categories.map((category) => (
+                                        <SelectItem key={category} value={category}>
+                                            {category}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Report Toggle */}
+                        <div className="flex items-center justify-between gap-2">
+                            <ChartColumnIncreasing className="h-4 w-4 text-muted-foreground shrink-0" />
+
+                            <div className="flex w-full gap-2">
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className={`flex-1 ${
+                                        reportGranularity === "DAILY"
+                                            ? "bg-primary text-primary-foreground"
+                                            : ""
+                                    }`}
+                                    onClick={() => setReportGranularity("DAILY")}
+                                >
+                                    Daily
+                                </Button>
+
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className={`flex-1 ${
+                                        reportGranularity === "MONTHLY"
+                                            ? "bg-primary text-primary-foreground"
+                                            : ""
+                                    }`}
+                                    onClick={() => setReportGranularity("MONTHLY")}
+                                >
+                                    Monthly
+                                </Button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>            )}
+        </CardHeader>
+      <CardContent className="space-y-3 px-4 sm:px-6">
         <div className="rounded-2xl border border-border/50 bg-background/70 p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Report period</p>
           <p className="mt-1 text-sm font-medium text-foreground">{periodLabel}</p>
@@ -432,7 +433,7 @@ export function ExpenseList({
                     <p className="text-sm font-medium text-foreground">{row.label}</p>
                     <p className="text-xs text-muted-foreground">{row.count} entries</p>
                   </div>
-                  <div className="flex items-center gap-3 text-xs sm:text-sm">
+                  <div className="flex flex-wrap items-center gap-2 text-xs sm:gap-3 sm:text-sm">
                     <span className="text-primary">IN {formatCurrency(row.totalIn)}</span>
                     <span className="text-destructive">OUT {formatCurrency(row.totalOut)}</span>
                     <span className="font-medium text-foreground">NET {formatCurrency(row.totalIn - row.totalOut)}</span>
@@ -489,6 +490,53 @@ export function ExpenseList({
             </div>
           </>
         )}
+
+        {canPaginate ? (
+          <div className="mt-2 flex flex-col gap-3 border-t border-border/40 pt-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="inline-flex w-full items-center gap-2 sm:w-auto">
+              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Items per page</span>
+              <Select value={pageSize} onValueChange={(value) => setPageSize(value as PageSize)}>
+                <SelectTrigger className="h-9 w-full min-w-0 sm:min-w-28">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="20">20</SelectItem>
+                  <SelectItem value="30">30</SelectItem>
+                  <SelectItem value="ALL">All</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-2 sm:inline-flex sm:justify-start">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                disabled={currentPage <= 1}
+                className="min-w-20"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Prev
+              </Button>
+              <span className="text-sm text-muted-foreground sm:min-w-[100px] sm:text-center">
+                Page <span className="font-medium text-foreground">{currentPage}</span> of {totalPages}
+              </span>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+                disabled={currentPage >= totalPages}
+                className="min-w-20"
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        ) : null}
       </CardContent>
     </div>
   );
