@@ -2,20 +2,22 @@
 
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/store/app-store";
 import { parseQuickTransaction, type Transaction, type TransactionType } from "@/lib/transactions";
+import { putTransaction, addToSyncQueue } from "@/lib/indexeddb";
+import { useNetworkStatus } from "@/lib/use-network-status";
 import { format, isToday } from "date-fns";
-import { ArrowDownRight, ArrowUpRight, CalendarDays, Plus } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, CalendarDays, CloudOff, Plus } from "lucide-react";
 
 const TRANSACTIONS_QUERY_KEY = ["transactions"];
 
 export function ExpenseForm() {
   const queryClient = useQueryClient();
+  const isOnline = useNetworkStatus();
   const quickInput = useAppStore((state) => state.quickInput);
   const fallbackType = useAppStore((state) => state.fallbackType);
   const setQuickInput = useAppStore((state) => state.setQuickInput);
@@ -63,12 +65,45 @@ export function ExpenseForm() {
         createdAt: new Date().toISOString(),
       };
 
+      // Always add to local state immediately
       addTransaction(optimisticTransaction);
       setQuickInput("");
 
-      const savedTransaction = await mutation.mutateAsync({ input: currentInput, type: fallbackType, date: date.toISOString() });
-      replaceTransaction(optimisticTransaction.id, savedTransaction);
-      await queryClient.invalidateQueries({ queryKey: TRANSACTIONS_QUERY_KEY });
+      // Always save to IndexedDB
+      await putTransaction(optimisticTransaction as unknown as Record<string, unknown>);
+
+      if (isOnline) {
+        // Online: send to server immediately
+        try {
+          const savedTransaction = await mutation.mutateAsync({
+            input: currentInput,
+            type: fallbackType,
+            date: date.toISOString(),
+          });
+          replaceTransaction(optimisticTransaction.id, savedTransaction);
+          // Update IndexedDB with server response
+          await putTransaction(savedTransaction as unknown as Record<string, unknown>);
+          await queryClient.invalidateQueries({ queryKey: TRANSACTIONS_QUERY_KEY });
+        } catch (serverError) {
+          // Server failed but data is saved locally — queue for sync
+          await addToSyncQueue({
+            action: "create",
+            payload: { input: currentInput, type: fallbackType, date: date.toISOString() },
+            createdAt: new Date().toISOString(),
+            retries: 0,
+            tempId: optimisticTransaction.id,
+          });
+        }
+      } else {
+        // Offline: queue for later sync
+        await addToSyncQueue({
+          action: "create",
+          payload: { input: currentInput, type: fallbackType, date: date.toISOString() },
+          createdAt: new Date().toISOString(),
+          retries: 0,
+          tempId: optimisticTransaction.id,
+        });
+      }
     } catch (submitError) {
       if (optimisticTransaction) {
         removeTransaction(optimisticTransaction.id);
@@ -86,13 +121,23 @@ export function ExpenseForm() {
           className="w-full  mx-auto space-y-5 rounded-2xl border border-border/50 bg-background/80 backdrop-blur-md p-4 sm:p-6 shadow-sm transition-all focus-within:ring-1 focus-within:ring-primary/20"
       >
           {/* Header */}
-          <div className="space-y-1">
-              <h2 className="text-base font-semibold tracking-tight">
-                  Add Transaction
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                  Example: 500 salary, 300 food note...
-              </p>
+          <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                  <h2 className="text-base font-semibold tracking-tight">
+                      Add Transaction
+                  </h2>
+                  <p className="text-xs text-muted-foreground">
+                      Example: 500 salary, 300 food note...
+                  </p>
+              </div>
+              {!isOnline && (
+                  <div className="flex items-center gap-1.5 rounded-full bg-amber-100 dark:bg-amber-900/30 px-2.5 py-1">
+                      <CloudOff className="h-3 w-3 text-amber-600 dark:text-amber-400" />
+                      <span className="text-[10px] font-medium text-amber-700 dark:text-amber-300">
+                          Offline
+                      </span>
+                  </div>
+              )}
           </div>
 
           {/* Type Toggle */}
@@ -176,7 +221,7 @@ export function ExpenseForm() {
                   className="h-11 px-5 rounded-lg text-sm font-medium w-full sm:w-auto"
               >
                   <Plus className="h-4 w-4" />
-                  {mutation.isPending ? "Saving..." : "Add"}
+                  {mutation.isPending ? "Saving..." : isOnline ? "Add" : "Save Offline"}
               </Button>
           </div>
 

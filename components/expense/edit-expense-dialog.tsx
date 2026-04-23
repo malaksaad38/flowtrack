@@ -12,6 +12,9 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CalendarDays, Loader2 } from "lucide-react";
 import { type Transaction, type TransactionType } from "@/lib/transactions";
+import { updateTransaction as updateInIDB, addToSyncQueue } from "@/lib/indexeddb";
+import { useNetworkStatus } from "@/lib/use-network-status";
+import { useAppStore } from "@/store/app-store";
 
 interface EditExpenseDialogProps {
   expense: Transaction;
@@ -20,6 +23,9 @@ interface EditExpenseDialogProps {
 
 export function EditExpenseDialog({ expense, children }: EditExpenseDialogProps) {
   const queryClient = useQueryClient();
+  const isOnline = useNetworkStatus();
+  const setTransactions = useAppStore((state) => state.setTransactions);
+  const transactions = useAppStore((state) => state.transactions);
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState(expense.amount.toString());
   const [category, setCategory] = useState(expense.category);
@@ -52,7 +58,7 @@ export function EditExpenseDialog({ expense, children }: EditExpenseDialogProps)
     }
   });
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
 
@@ -67,13 +73,50 @@ export function EditExpenseDialog({ expense, children }: EditExpenseDialogProps)
       return;
     }
 
-    mutation.mutate({
+    const updatePayload = {
       amount: parsedAmount,
       category: category.trim(),
       note: note.trim() || null,
       type,
       date: date.toISOString(),
-    });
+    };
+
+    // Always update in local state immediately
+    const updatedTransactions = transactions.map((t) =>
+      t.id === expense.id ? { ...t, ...updatePayload } : t
+    );
+    setTransactions(updatedTransactions);
+
+    // Always update IndexedDB
+    await updateInIDB(expense.id, updatePayload);
+
+    if (isOnline && !expense.id.startsWith("temp-")) {
+      // Online: send to server
+      try {
+        mutation.mutate(updatePayload);
+      } catch {
+        // Queue for sync on failure
+        await addToSyncQueue({
+          action: "update",
+          payload: { id: expense.id, ...updatePayload },
+          createdAt: new Date().toISOString(),
+          retries: 0,
+        });
+        setOpen(false);
+      }
+    } else if (!expense.id.startsWith("temp-")) {
+      // Offline: queue for later
+      await addToSyncQueue({
+        action: "update",
+        payload: { id: expense.id, ...updatePayload },
+        createdAt: new Date().toISOString(),
+        retries: 0,
+      });
+      setOpen(false);
+    } else {
+      // Temp ID — just update locally, sync will handle it
+      setOpen(false);
+    }
   }
 
   return (
@@ -175,7 +218,7 @@ export function EditExpenseDialog({ expense, children }: EditExpenseDialogProps)
             </Button>
             <Button type="submit" disabled={mutation.isPending}>
               {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Save Changes
+              {isOnline ? "Save Changes" : "Save Offline"}
             </Button>
           </div>
         </form>

@@ -10,6 +10,7 @@ import {
     TrendingUp,
     TrendingDown,
     Loader2,
+    CloudOff,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +23,8 @@ import {
     formatCurrency,
     type Transaction,
 } from "@/lib/transactions";
+import { getAllTransactions, putAllTransactions } from "@/lib/indexeddb";
+import { useNetworkStatus } from "@/lib/use-network-status";
 
 const TRANSACTIONS_QUERY_KEY = ["transactions"];
 
@@ -197,6 +200,7 @@ export function CashbookWorkspace({
                                       initialTransactions,
                                       mode = "dashboard",
                                   }: CashbookWorkspaceProps) {
+    const isOnline = useNetworkStatus();
     const hasLoadedTransactions = useAppStore((s) => s.hasLoadedTransactions);
     const transactions = useAppStore((s) => s.transactions);
     const setTransactions = useAppStore((s) => s.setTransactions);
@@ -208,15 +212,37 @@ export function CashbookWorkspace({
         queryKey: TRANSACTIONS_QUERY_KEY,
         queryFn: fetchTransactions,
         initialData: initialTransactions,
+        // Don't refetch when offline
+        enabled: isOnline,
     });
 
+    // Load from IndexedDB on mount (instant offline-first data)
     useEffect(() => {
-        setTransactions(initialTransactions);
-    }, [initialTransactions, setTransactions]);
+        async function loadFromIDB() {
+            try {
+                const idbTransactions = await getAllTransactions();
+                if (idbTransactions.length > 0) {
+                    setTransactions(idbTransactions as unknown as Transaction[]);
+                } else {
+                    setTransactions(initialTransactions);
+                }
+            } catch {
+                setTransactions(initialTransactions);
+            }
+        }
+        loadFromIDB();
+    }, []);
 
+    // When server data arrives, update both state and IndexedDB
     useEffect(() => {
-        if (query.data) setTransactions(query.data);
-    }, [query.dataUpdatedAt, query.data, setTransactions]);
+        if (query.data && isOnline) {
+            setTransactions(query.data);
+            // Save to IndexedDB for offline access
+            putAllTransactions(query.data as unknown as Record<string, unknown>[]).catch((err) =>
+                console.error("[Workspace] Failed to cache transactions to IndexedDB:", err)
+            );
+        }
+    }, [query.dataUpdatedAt, query.data, setTransactions, isOnline]);
 
     /* ── List mode ── */
     if (mode === "list") {
@@ -251,6 +277,14 @@ export function CashbookWorkspace({
                 <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400 animate-pulse">
                     <Loader2 className="h-3 w-3 animate-spin" />
                     Syncing…
+                </div>
+            )}
+
+            {/* Offline data notice */}
+            {!isOnline && (
+                <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400">
+                    <CloudOff className="h-3 w-3" />
+                    Showing cached data
                 </div>
             )}
 
