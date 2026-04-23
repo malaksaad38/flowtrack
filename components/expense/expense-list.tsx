@@ -315,6 +315,21 @@ export function ExpenseList({
                                 {label}
                             </Button>
                         ))}
+                        {datePreset === "CUSTOM" && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <Input
+                                    type="date"
+                                    value={rangeStart}
+                                    onChange={(e) => setRangeStart(e.target.value)}
+                                />
+                                <Input
+                                    type="date"
+                                    value={rangeEnd}
+                                    onChange={(e) => setRangeEnd(e.target.value)}
+                                />
+                            </div>
+                        )}
+
                     </div>
 
                     {/* Mobile expanded filters */}

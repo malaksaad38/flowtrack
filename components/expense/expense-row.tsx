@@ -1,8 +1,10 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, StickyNote } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CalendarDays, StickyNote, Pencil } from "lucide-react";
 import { DeleteButton } from "./delete-button";
+import { EditExpenseDialog } from "./edit-expense-dialog";
 import { formatCurrency, formatTransactionDate, type Transaction } from "@/lib/transactions";
 
 interface ExpenseRowProps {
@@ -47,7 +49,19 @@ export function ExpenseRow({ expense }: ExpenseRowProps) {
           <CalendarDays className="h-3.5 w-3.5" />
           {formatTransactionDate(expense.date)}
         </span>
-        <DeleteButton transactionId={expense.id} />
+        <div className="flex items-center gap-1">
+          <EditExpenseDialog expense={expense}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 text-muted-foreground hover:bg-primary/10 hover:text-primary"
+              aria-label="Edit transaction"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </Button>
+          </EditExpenseDialog>
+          <DeleteButton transactionId={expense.id} />
+        </div>
       </div>
     </div>
   );
@@ -94,8 +108,20 @@ export function ExpenseTableRow({ expense }: ExpenseRowProps) {
           {formatCurrency(expense.amount)}
         </span>
       </td>
-      <td className="px-5 py-4 align-middle text-center w-16">
-        <DeleteButton transactionId={expense.id} />
+      <td className="px-5 py-4 align-middle text-right w-20">
+        <div className="flex items-center justify-end gap-1">
+          <EditExpenseDialog expense={expense}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 text-muted-foreground hover:bg-primary/10 hover:text-primary"
+              aria-label="Edit transaction"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </Button>
+          </EditExpenseDialog>
+          <DeleteButton transactionId={expense.id} />
+        </div>
       </td>
     </tr>
   );
