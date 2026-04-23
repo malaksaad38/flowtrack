@@ -223,7 +223,7 @@ export function ExpenseList({
   const periodLabel = getPresetLabel(datePreset, rangeStart, rangeEnd);
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-3xl border border-border/50 bg-background/40 pb-4 shadow-sm backdrop-blur-sm">
+    <div className="flex flex-col overflow-hidden rounded-3xl border border-border/50 bg-background/40 shadow-sm backdrop-blur-sm">
         <CardHeader className="space-y-4 border-b border-border/50 bg-muted/10 px-3 py-4 sm:px-6 sm:py-5">
             {/* Top Section */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -342,67 +342,63 @@ export function ExpenseList({
                         </div>
                     )}
 
-                    {/* Bottom Controls */}
-                    <div className="flex flex-col gap-3">
-
-                        {/* Category */}
-                        <div className="flex items-center gap-2 w-full">
-                            <FolderKanban className="h-4 w-4 text-muted-foreground shrink-0" />
-                            <Select
-                                value={selectedCategory}
-                                onValueChange={setSelectedCategory}
-                            >
-                                <SelectTrigger className="h-9 w-full">
-                                    <SelectValue placeholder="Category" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="ALL">All categories</SelectItem>
-                                    {categories.map((category) => (
-                                        <SelectItem key={category} value={category}>
-                                            {category}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        {/* Report Toggle */}
-                        <div className="flex items-center justify-between gap-2">
-                            <ChartColumnIncreasing className="h-4 w-4 text-muted-foreground shrink-0" />
-
-                            <div className="flex w-full gap-2">
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className={`flex-1 ${
-                                        reportGranularity === "DAILY"
-                                            ? "bg-primary text-primary-foreground"
-                                            : ""
-                                    }`}
-                                    onClick={() => setReportGranularity("DAILY")}
-                                >
-                                    Daily
-                                </Button>
-
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className={`flex-1 ${
-                                        reportGranularity === "MONTHLY"
-                                            ? "bg-primary text-primary-foreground"
-                                            : ""
-                                    }`}
-                                    onClick={() => setReportGranularity("MONTHLY")}
-                                >
-                                    Monthly
-                                </Button>
-                            </div>
-                        </div>
-
+                    {/* Category */}
+                    <div className="flex items-center gap-2 w-full">
+                        <FolderKanban className="h-4 w-4 text-muted-foreground shrink-0" />
+                        <Select
+                            value={selectedCategory}
+                            onValueChange={setSelectedCategory}
+                        >
+                            <SelectTrigger className="h-9 w-full">
+                                <SelectValue placeholder="Category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="ALL">All categories</SelectItem>
+                                {categories.map((category) => (
+                                    <SelectItem key={category} value={category}>
+                                        {category}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
                 </div>            )}
         </CardHeader>
-      <CardContent className="space-y-3 px-4 sm:px-6">
+      <CardContent className="space-y-3 px-4 py-4 sm:px-6">
+        <div className="rounded-2xl border border-border/50 bg-background/70 p-4">
+          <div className="mb-3 flex items-center gap-2">
+            <ChartColumnIncreasing className="h-4 w-4 text-muted-foreground" />
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Report view</p>
+          </div>
+          <div className="flex w-full gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className={`flex-1 ${
+                reportGranularity === "DAILY"
+                  ? "bg-primary text-primary-foreground"
+                  : ""
+              }`}
+              onClick={() => setReportGranularity("DAILY")}
+            >
+              Daily
+            </Button>
+
+            <Button
+              size="sm"
+              variant="outline"
+              className={`flex-1 ${
+                reportGranularity === "MONTHLY"
+                  ? "bg-primary text-primary-foreground"
+                  : ""
+              }`}
+              onClick={() => setReportGranularity("MONTHLY")}
+            >
+              Monthly
+            </Button>
+          </div>
+        </div>
+
         <div className="rounded-2xl border border-border/50 bg-background/70 p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Report period</p>
           <p className="mt-1 text-sm font-medium text-foreground">{periodLabel}</p>
