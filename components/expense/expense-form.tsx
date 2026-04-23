@@ -80,99 +80,118 @@ export function ExpenseForm() {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="relative space-y-5 rounded-3xl border border-border/50 bg-background/60 backdrop-blur-xl p-5 shadow-lg sm:p-6 transition-all duration-300 hover:shadow-xl focus-within:ring-1 focus-within:ring-primary/20 focus-within:border-primary/30"
-      id="cashbook-composer"
-    >
-      <div className="space-y-1.5">
-        <p className="text-base font-bold tracking-tight">Quick add</p>
-        <p className="text-xs text-muted-foreground/80 sm:text-sm">
-          Try `500 in salary`, `300 out food`, `1000 received`, or `200 spent`.
-        </p>
-      </div>
-
-      <div className="flex gap-2">
-        {(["IN", "OUT"] as const).map((type) => (
-          <Button
-            key={type}
-            type="button"
-            variant="outline"
-            onClick={() => setFallbackType(type)}
-            className={cn(
-              "h-11 flex-1  font-semibold tracking-wide",
-              fallbackType === type &&
-                (type === "IN"
-                  ? "border-green-500 text-green-500 bg-green-400/30 hover:bg-green-400/30"
-                  : "border-red-500 text-red-500 bg-red-400/30 hover:bg-red-400/30")
-            )}
-          >
-            {type === "IN" ? <ArrowDownRight className="h-4 w-4" /> : <ArrowUpRight className="h-4 w-4" />}
-            {type}
-          </Button>
-        ))}
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <div className="flex flex-1 gap-2 relative w-full">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  type="button"
-                  className={cn(
-                    "h-11 w-11 shrink-0 rounded-2xl p-0 flex items-center justify-center",
-                    !date && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarDays className="h-5 w-5" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-[min(92vw,22rem)] rounded-3xl border-border/50 bg-background/80 p-3 shadow-2xl backdrop-blur-xl sm:w-auto sm:p-4" align="start">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={(d) => d && setDate(d)}
-                  initialFocus
-                  className="p-0"
-                />
-              </PopoverContent>
-            </Popover>
-
-            <Input
-              id="transaction-quick-input"
-              type="text"
-              placeholder="Amount Category Note..."
-              value={quickInput}
-              onChange={(event) => setQuickInput(event.target.value)}
-              autoComplete="off"
-              required
-              className="flex-1 h-11"
-            />
+      <form
+          onSubmit={handleSubmit}
+          id="cashbook-composer"
+          className="w-full  mx-auto space-y-5 rounded-2xl border border-border/50 bg-background/80 backdrop-blur-md p-4 sm:p-6 shadow-sm transition-all focus-within:ring-1 focus-within:ring-primary/20"
+      >
+          {/* Header */}
+          <div className="space-y-1">
+              <h2 className="text-base font-semibold tracking-tight">
+                  Add Transaction
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                  Example: 500 salary, 300 food note...
+              </p>
           </div>
-          <Button
-            id="transaction-submit"
-            type="submit"
-            disabled={mutation.isPending}
-            className="h-11 rounded-2xl px-6 w-full sm:w-auto"
-          >
-            <Plus className="h-4 w-4" />
-            {mutation.isPending ? "Saving..." : "Add"}
-          </Button>
-        </div>
-        {date && !isToday(date) && (
-          <div className="pl-14 text-[11px] text-muted-foreground/70">
-            Selected date: <span className="text-foreground/80">{format(date, "PPP")}</span>
-          </div>
-        )}
-      </div>
 
-      {error ? (
-        <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {error}
-        </div>
-      ) : null}
-    </form>
-  );
+          {/* Type Toggle */}
+          <div className="flex items-center gap-2">
+              {(["IN", "OUT"] as const).map((type) => {
+                  const active = fallbackType === type;
+                  return (
+                      <button
+                          key={type}
+                          type="button"
+                          onClick={() => setFallbackType(type)}
+                          className={cn(
+                              "flex-1 h-10 rounded-lg border text-sm font-medium transition-colors flex items-center justify-center gap-2",
+                              active
+                                  ? type === "IN"
+                                      ? "border-green-500 bg-green-500/10 text-green-600"
+                                      : "border-red-500 bg-red-500/10 text-red-600"
+                                  : "border-border text-muted-foreground hover:bg-muted/40 hover:text-foreground"
+                          )}
+                      >
+                          {type === "IN" ? (
+                              <ArrowDownRight className="h-4 w-4" />
+                          ) : (
+                              <ArrowUpRight className="h-4 w-4" />
+                          )}
+                          {type}
+                      </button>
+                  );
+              })}
+          </div>
+
+          {/* Input Row */}
+          <div className="flex flex-col sm:flex-row gap-2">
+              {/* Input Container */}
+              <div className="flex flex-1 items-center gap-2 h-11 rounded-lg border border-border bg-background px-2 focus-within:ring-1 focus-within:ring-primary/20">
+
+                  {/* Date */}
+                  <Popover>
+                      <PopoverTrigger asChild>
+                          <button
+                              type="button"
+                              className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted transition"
+                          >
+                              <CalendarDays className="h-4 w-4 text-muted-foreground" />
+                          </button>
+                      </PopoverTrigger>
+
+                      <PopoverContent
+                          align="start"
+                          className="w-auto p-0"
+                      >
+                          <Calendar
+                              mode="single"
+                              selected={date}
+                              onSelect={(d) => d && setDate(d)}
+                              initialFocus
+                          />
+                      </PopoverContent>
+                  </Popover>
+
+                  <div className="h-4 w-px bg-border" />
+
+                  {/* Input */}
+                  <input
+                      id="transaction-quick-input"
+                      type="text"
+                      placeholder="Amount category note..."
+                      value={quickInput}
+                      onChange={(e) => setQuickInput(e.target.value)}
+                      autoComplete="off"
+                      required
+                      className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                  />
+              </div>
+
+              {/* Submit */}
+              <Button
+                  id="transaction-submit"
+                  type="submit"
+                  disabled={mutation.isPending}
+                  className="h-11 px-5 rounded-lg text-sm font-medium w-full sm:w-auto"
+              >
+                  <Plus className="h-4 w-4" />
+                  {mutation.isPending ? "Saving..." : "Add"}
+              </Button>
+          </div>
+
+          {/* Date Info */}
+          {date && !isToday(date) && (
+              <div className="text-xs text-muted-foreground sm:pl-10">
+                  {format(date, "PPP")}
+              </div>
+          )}
+
+          {/* Error */}
+          {error && (
+              <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                  {error}
+              </div>
+          )}
+      </form>  );
 }
