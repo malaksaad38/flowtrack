@@ -25,6 +25,7 @@ import {
   FolderKanban,
   Loader2,
   ReceiptText,
+  ChevronDown,
 } from "lucide-react";
 import { useAppStore } from "@/store/app-store";
 import { formatCurrency, type Transaction } from "@/lib/transactions";
@@ -150,12 +151,11 @@ export function ExpenseList({
   const pageSizeNumber = pageSize === "ALL" ? transactions.length || 1 : Number(pageSize);
   const totalPages = canPaginate ? Math.max(1, Math.ceil(transactions.length / pageSizeNumber)) : 1;
   const currentPage = canPaginate ? Math.min(page, totalPages) : 1;
-  const pageStartIndex = canPaginate ? (currentPage - 1) * pageSizeNumber : 0;
   const visibleTransactions = typeof limit === "number"
     ? transactions.slice(0, limit)
     : pageSize === "ALL"
       ? transactions
-      : transactions.slice(pageStartIndex, pageStartIndex + pageSizeNumber);
+      : transactions.slice(0, currentPage * pageSizeNumber);
 
   useEffect(() => {
     if (canPaginate) {
@@ -380,9 +380,9 @@ export function ExpenseList({
         )}
 
         {canPaginate ? (
-          <div className="mt-2 flex flex-col gap-3 border-t border-border/40 pt-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="inline-flex w-full items-center gap-2 sm:w-auto">
-              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Items per page</span>
+          <div className="mt-4 flex items-center gap-3 border-t border-border/40 pt-4  justify-between">
+            <div className="inline-flex w-auto items-center gap-2 sm:w-auto">
+              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Items</span>
               <Select value={pageSize} onValueChange={(value) => setPageSize(value as PageSize)}>
                 <SelectTrigger className="h-9 w-full min-w-0 sm:min-w-28">
                   <SelectValue />
@@ -396,33 +396,19 @@ export function ExpenseList({
               </Select>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-2 sm:inline-flex sm:justify-start">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-                disabled={currentPage <= 1}
-                className="min-w-20"
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Prev
-              </Button>
-              <span className="text-sm text-muted-foreground sm:min-w-[100px] sm:text-center">
-                Page <span className="font-medium text-foreground">{currentPage}</span> of {totalPages}
-              </span>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
-                disabled={currentPage >= totalPages}
-                className="min-w-20"
-              >
-                Next
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
+            {pageSize !== "ALL" && currentPage < totalPages && (
+              <div className="flex justify-center sm:justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setPage((prev) => prev + 1)}
+                  className="min-w-[140px] rounded-full bg-background/50 hover:bg-muted shadow-sm"
+                >
+                  Load More
+                  <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            )}
           </div>
         ) : null}
       </CardContent>
