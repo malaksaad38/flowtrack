@@ -15,12 +15,12 @@ export function ModeToggle() {
     const current = theme ?? "system";
 
     return (
-        <div className="relative inline-flex items-center rounded-full border bg-muted/40 p-1 backdrop-blur supports-[backdrop-filter]:bg-muted/30">
+        <div className="relative inline-flex items-center rounded-full bg-muted border bg-muted/40 p-1 backdrop-blur supports-[backdrop-filter]:bg-muted/30">
 
             {/* Animated pill */}
             <div
                 className={cn(
-                    "absolute top-1 bottom-1 w-8 rounded-full bg-background shadow-sm transition-all duration-300",
+                    "absolute top-1 bottom-1 w-8 border border-border rounded-full bg-background shadow-sm transition-all duration-300",
                     current === "light" && "left-1",
                     current === "system" && "left-1/2 -translate-x-1/2",
                     current === "dark" && "right-1"

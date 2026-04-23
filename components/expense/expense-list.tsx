@@ -30,7 +30,6 @@ import { useAppStore } from "@/store/app-store";
 import { formatCurrency, type Transaction } from "@/lib/transactions";
 
 type DatePreset = "ALL" | "TODAY" | "YESTERDAY" | "THIS_MONTH" | "LAST_7_DAYS" | "CUSTOM";
-type ReportGranularity = "DAILY" | "MONTHLY";
 type PageSize = "10" | "20" | "30" | "ALL";
 
 interface ExpenseListProps {
@@ -40,13 +39,6 @@ interface ExpenseListProps {
   fallbackTransactions?: Transaction[];
 }
 
-interface ReportRow {
-  key: string;
-  label: string;
-  count: number;
-  totalIn: number;
-  totalOut: number;
-}
 
 function getPresetLabel(preset: DatePreset, rangeStart: string, rangeEnd: string) {
   if (preset === "TODAY") {
@@ -125,7 +117,6 @@ export function ExpenseList({
   const getFilteredTransactions = useAppStore((state) => state.getFilteredTransactions);
 
   const [datePreset, setDatePreset] = useState<DatePreset>("ALL");
-  const [reportGranularity, setReportGranularity] = useState<ReportGranularity>("DAILY");
   const [selectedCategory, setSelectedCategory] = useState("ALL");
   const [pageSize, setPageSize] = useState<PageSize>("10");
   const [page, setPage] = useState(1);
@@ -170,7 +161,7 @@ export function ExpenseList({
     if (canPaginate) {
       setPage(1);
     }
-  }, [filterType, datePreset, selectedCategory, rangeStart, rangeEnd, pageSize, reportGranularity, canPaginate]);
+  }, [filterType, datePreset, selectedCategory, rangeStart, rangeEnd, pageSize, canPaginate]);
 
   useEffect(() => {
     if (canPaginate && page > totalPages) {
@@ -178,7 +169,7 @@ export function ExpenseList({
     }
   }, [page, totalPages, canPaginate]);
 
-  const reportSummary = useMemo(() => {
+  const summary = useMemo(() => {
     return transactions.reduce(
       (summary, transaction) => {
         if (transaction.type === "IN") {
@@ -195,30 +186,6 @@ export function ExpenseList({
     );
   }, [transactions]);
 
-  const reportRows = useMemo(() => {
-    const accumulator = new Map<string, ReportRow>();
-
-    for (const transaction of transactions) {
-      const transactionDate = new Date(transaction.date);
-      const key = reportGranularity === "DAILY"
-        ? format(transactionDate, "yyyy-MM-dd")
-        : format(transactionDate, "yyyy-MM");
-      const label = reportGranularity === "DAILY"
-        ? format(transactionDate, "EEE, MMM d, yyyy")
-        : format(transactionDate, "MMMM yyyy");
-
-      const row = accumulator.get(key) ?? { key, label, count: 0, totalIn: 0, totalOut: 0 };
-      row.count += 1;
-      if (transaction.type === "IN") {
-        row.totalIn += transaction.amount;
-      } else {
-        row.totalOut += transaction.amount;
-      }
-      accumulator.set(key, row);
-    }
-
-    return Array.from(accumulator.values()).sort((left, right) => right.key.localeCompare(left.key));
-  }, [transactions, reportGranularity]);
 
   const periodLabel = getPresetLabel(datePreset, rangeStart, rangeEnd);
 
@@ -244,7 +211,7 @@ export function ExpenseList({
                     <div className="flex items-center gap-1">
                         <CircleDollarSign className="h-4 w-4" />
                         <span className="font-medium text-foreground">
-          {formatCurrency(reportSummary.balance)}
+          {formatCurrency(summary.balance)}
         </span>
                     </div>
 
@@ -365,81 +332,6 @@ export function ExpenseList({
                 </div>            )}
         </CardHeader>
       <CardContent className="space-y-3 px-4 py-4 sm:px-6">
-        <div className="rounded-2xl border border-border/50 bg-background/70 p-4">
-          <div className="mb-3 flex items-center gap-2">
-            <ChartColumnIncreasing className="h-4 w-4 text-muted-foreground" />
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Report view</p>
-          </div>
-          <div className="flex w-full gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              className={`flex-1 ${
-                reportGranularity === "DAILY"
-                  ? "bg-primary text-primary-foreground"
-                  : ""
-              }`}
-              onClick={() => setReportGranularity("DAILY")}
-            >
-              Daily
-            </Button>
-
-            <Button
-              size="sm"
-              variant="outline"
-              className={`flex-1 ${
-                reportGranularity === "MONTHLY"
-                  ? "bg-primary text-primary-foreground"
-                  : ""
-              }`}
-              onClick={() => setReportGranularity("MONTHLY")}
-            >
-              Monthly
-            </Button>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-border/50 bg-background/70 p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Report period</p>
-          <p className="mt-1 text-sm font-medium text-foreground">{periodLabel}</p>
-          <div className="mt-3 flex flex-wrap gap-2 text-sm">
-            <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-primary">
-              IN {formatCurrency(reportSummary.totalIn)}
-            </span>
-            <span className="rounded-full border border-destructive/20 bg-destructive/10 px-3 py-1 text-destructive">
-              OUT {formatCurrency(reportSummary.totalOut)}
-            </span>
-            <span className="rounded-full border border-border px-3 py-1 text-foreground">
-              Balance {formatCurrency(reportSummary.balance)}
-            </span>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-border/50 bg-background/70 p-4">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            {reportGranularity === "DAILY" ? "Daily report" : "Monthly report"}
-          </p>
-          {reportRows.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No report data for the selected filters.</p>
-          ) : (
-            <div className="space-y-2">
-              {reportRows.map((row) => (
-                <div key={row.key} className="flex flex-col gap-1 rounded-xl border border-border/40 bg-muted/20 px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{row.label}</p>
-                    <p className="text-xs text-muted-foreground">{row.count} entries</p>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2 text-xs sm:gap-3 sm:text-sm">
-                    <span className="text-primary">IN {formatCurrency(row.totalIn)}</span>
-                    <span className="text-destructive">OUT {formatCurrency(row.totalOut)}</span>
-                    <span className="font-medium text-foreground">NET {formatCurrency(row.totalIn - row.totalOut)}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
         {isRefreshing && visibleTransactions.length === 0 ? (
           <>
             <div className="grid gap-4 sm:grid-cols-2 lg:hidden">

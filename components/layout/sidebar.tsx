@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, List, PlusCircle, Settings, Sparkles } from "lucide-react";
+import { LayoutGrid, List, PlusCircle, Settings, Sparkles, PieChart } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -20,6 +20,11 @@ const NAV = [
     href: "/add",
     label: "Quick Add",
     icon: PlusCircle,
+  },
+  {
+    href: "/reports",
+    label: "Reports",
+    icon: PieChart,
   },
 ];
 
