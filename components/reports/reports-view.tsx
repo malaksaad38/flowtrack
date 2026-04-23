@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import { formatCurrency, type Transaction } from "@/lib/transactions";
 import { BarChart } from "@/components/charts/bar-chart";
 import { DonutChart } from "@/components/charts/donut-chart";
@@ -27,6 +28,7 @@ import {
     Layers,
     Minus,
     ChevronsUpDown,
+    ChevronDown,
 } from "lucide-react";
 
 interface ReportsViewProps {
@@ -160,6 +162,7 @@ export function ReportsView({ initialTransactions }: ReportsViewProps) {
     }, [initialTransactions]);
 
     const [selectedMonth, setSelectedMonth] = useState(months.length > 0 ? months[0] : format(new Date(), "yyyy-MM"));
+    const [dailyVisibleCount, setDailyVisibleCount] = useState(10);
 
     // current period transactions
     const transactions = useMemo(() => {
@@ -743,7 +746,7 @@ export function ReportsView({ initialTransactions }: ReportsViewProps) {
                                 <div className="p-8 text-center text-sm text-muted-foreground">No transactions for this period.</div>
                             ) : (
                                 <div className="divide-y divide-border/40">
-                                    {reportRows.map((row) => {
+                                    {reportRows.slice(0, dailyVisibleCount).map((row) => {
                                         const net = row.totalIn - row.totalOut;
                                         return (
                                             <div
@@ -783,6 +786,19 @@ export function ReportsView({ initialTransactions }: ReportsViewProps) {
                                             </div>
                                         );
                                     })}
+                                </div>
+                            )}
+                            {dailyVisibleCount < reportRows.length && (
+                                <div className="border-t border-border/40 p-4 flex justify-center">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setDailyVisibleCount(prev => prev + 10)}
+                                        className="rounded-full shadow-sm bg-background/50 hover:bg-muted"
+                                    >
+                                        Load More
+                                        <ChevronDown className="ml-2 h-4 w-4" />
+                                    </Button>
                                 </div>
                             )}
                         </CardContent>

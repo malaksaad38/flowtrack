@@ -15,17 +15,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  ArrowDownRight,
-  ArrowUpRight,
-  CalendarDays,
-  ChevronLeft,
-  ChevronRight,
-  ChartColumnIncreasing,
-  CircleDollarSign,
-  FolderKanban,
-  Loader2,
-  ReceiptText,
-  ChevronDown,
+    ArrowDownRight,
+    ArrowUpRight,
+    CalendarDays,
+    ChevronLeft,
+    ChevronRight,
+    ChartColumnIncreasing,
+    CircleDollarSign,
+    FolderKanban,
+    Loader2,
+    ReceiptText,
+    ChevronDown, SlidersHorizontal,
 } from "lucide-react";
 import { useAppStore } from "@/store/app-store";
 import { formatCurrency, type Transaction } from "@/lib/transactions";
@@ -123,6 +123,7 @@ export function ExpenseList({
   const [page, setPage] = useState(1);
   const [rangeStart, setRangeStart] = useState("");
   const [rangeEnd, setRangeEnd] = useState("");
+  const [showMore, setShowMore] = useState(false);
 
   const baseTransactions = hasLoadedTransactions
     ? getFilteredTransactions()
@@ -231,10 +232,12 @@ export function ExpenseList({
 
             {/* Filters */}
             {showFilters && (
-                <div className="space-y-4 rounded-2xl border border-border/50 bg-background/80 p-3 sm:p-4 max-w-full overflow-hidden">
+                <div className="space-y-4 rounded-2xl border border-border/50 bg-background/80 p-3 sm:p-4">
 
-                    {/* Type Filter */}
-                    <div className="flex flex-wrap gap-2">
+                    {/* Top row: always visible */}
+                    <div className="flex flex-wrap items-center gap-2">
+
+                        {/* Type */}
                         {(["ALL", "IN", "OUT"] as const).map((type) => (
                             <Button
                                 key={type}
@@ -242,25 +245,52 @@ export function ExpenseList({
                                 size="sm"
                                 variant="outline"
                                 onClick={() => setFilterType(type)}
-                                className={`
-          flex items-center gap-1.5
-          rounded-full px-3 py-1.5
-          text-xs sm:text-sm
-          shrink-0
-          ${filterType === type
-                                    ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                                    : ""}
-        `}
+                                className={`rounded-full text-xs sm:text-sm gap-1.5 ${
+                                    filterType === type
+                                        ? "bg-primary text-primary-foreground"
+                                        : ""
+                                }`}
                             >
-                                {type === "IN" && <ArrowDownRight className="h-3.5 w-3.5 shrink-0" />}
-                                {type === "OUT" && <ArrowUpRight className="h-3.5 w-3.5 shrink-0" />}
+                                {type === "IN" && <ArrowDownRight className="h-3.5 w-3.5" />}
+                                {type === "OUT" && <ArrowUpRight className="h-3.5 w-3.5" />}
                                 {type}
                             </Button>
+
                         ))}
+                        <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            className="lg:hidden ml-auto"
+                            onClick={() => setShowMore((p) => !p)}
+                        >
+                            <SlidersHorizontal className="h-4 w-4 mr-1" />
+                            More
+                        </Button>
+
+                        {/* Category */}
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                            <FolderKanban className="h-4 w-4 text-muted-foreground" />
+                            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                                <SelectTrigger className="h-9 w-full sm:w-[180px]">
+                                    <SelectValue placeholder="Category" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="ALL">All categories</SelectItem>
+                                    {categories.map((c) => (
+                                        <SelectItem key={c} value={c}>
+                                            {c}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* More button (mobile only) */}
                     </div>
 
-                    {/* Date Filter */}
-                    <div className="flex flex-wrap gap-2">
+                    {/* Desktop filters */}
+                    <div className="hidden lg:flex flex-wrap gap-2">
                         {([
                             ["ALL", "All"],
                             ["TODAY", "Today"],
@@ -275,60 +305,63 @@ export function ExpenseList({
                                 size="sm"
                                 variant="outline"
                                 onClick={() => setDatePreset(preset)}
-                                className={`
-          flex items-center gap-1.5
-          rounded-full px-3 py-1.5
-          text-xs sm:text-sm
-          shrink-0
-          ${datePreset === preset
-                                    ? "bg-primary/10 text-primary border-primary/30"
-                                    : ""}
-        `}
+                                className={`rounded-full text-xs sm:text-sm gap-1.5 ${
+                                    datePreset === preset
+                                        ? "bg-primary/10 text-primary border-primary/30"
+                                        : ""
+                                }`}
                             >
-                                <CalendarDays className="h-3.5 w-3.5 shrink-0" />
+                                <CalendarDays className="h-3.5 w-3.5" />
                                 {label}
                             </Button>
                         ))}
                     </div>
 
-                    {/* Custom Range */}
-                    {datePreset === "CUSTOM" && (
-                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                            <Input
-                                type="date"
-                                value={rangeStart}
-                                onChange={(e) => setRangeStart(e.target.value)}
-                                className="w-full"
-                            />
-                            <Input
-                                type="date"
-                                value={rangeEnd}
-                                onChange={(e) => setRangeEnd(e.target.value)}
-                                className="w-full"
-                            />
+                    {/* Mobile expanded filters */}
+                    {showMore && (
+                        <div className="lg:hidden space-y-3 pt-2 border-t border-border/40">
+
+                            <div className="flex flex-wrap gap-2">
+                                {([
+                                    ["ALL", "All"],
+                                    ["TODAY", "Today"],
+                                    ["YESTERDAY", "Yesterday"],
+                                    ["THIS_MONTH", "Month"],
+                                    ["LAST_7_DAYS", "7d"],
+                                    ["CUSTOM", "Custom"],
+                                ] as const).map(([preset, label]) => (
+                                    <Button
+                                        key={preset}
+                                        type="button"
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => setDatePreset(preset)}
+                                        className={`rounded-full text-xs gap-1.5 ${
+                                            datePreset === preset ? "bg-primary/10 text-primary" : ""
+                                        }`}
+                                    >
+                                        <CalendarDays className="h-3.5 w-3.5" />
+                                        {label}
+                                    </Button>
+                                ))}
+                            </div>
+
+                            {datePreset === "CUSTOM" && (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    <Input
+                                        type="date"
+                                        value={rangeStart}
+                                        onChange={(e) => setRangeStart(e.target.value)}
+                                    />
+                                    <Input
+                                        type="date"
+                                        value={rangeEnd}
+                                        onChange={(e) => setRangeEnd(e.target.value)}
+                                    />
+                                </div>
+                            )}
                         </div>
                     )}
-
-                    {/* Category */}
-                    <div className="flex items-center gap-2 w-full">
-                        <FolderKanban className="h-4 w-4 text-muted-foreground shrink-0" />
-                        <Select
-                            value={selectedCategory}
-                            onValueChange={setSelectedCategory}
-                        >
-                            <SelectTrigger className="h-9 w-full">
-                                <SelectValue placeholder="Category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="ALL">All categories</SelectItem>
-                                {categories.map((category) => (
-                                    <SelectItem key={category} value={category}>
-                                        {category}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
                 </div>            )}
         </CardHeader>
       <CardContent className="space-y-3 px-4 py-4 sm:px-6">
