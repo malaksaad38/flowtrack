@@ -316,32 +316,40 @@ export function ReportsView({ initialTransactions }: ReportsViewProps) {
         <div className="space-y-6">
             {/* ── Period Selector ── */}
             <Card className="border-border/40 bg-card/60 backdrop-blur-sm">
-                <CardContent className="flex flex-wrap items-center gap-4 p-4">
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                        <Calendar className="h-4 w-4" />
-                        <span className="text-sm font-semibold">Period</span>
+                <CardContent className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
+
+                    {/* Label + Select group */}
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3 w-full sm:w-auto">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                            <Calendar className="h-4 w-4" />
+                            <span className="text-sm font-semibold">Period</span>
+                        </div>
+
+                        <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                            <SelectTrigger className="w-full sm:w-[200px] font-medium">
+                                <SelectValue placeholder="Select period" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="ALL">All Time</SelectItem>
+                                {months.map((m) => (
+                                    <SelectItem key={m} value={m}>
+                                        {format(parseISO(m + "-01"), "MMMM yyyy")}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
-                    <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                        <SelectTrigger className="w-[200px] font-medium">
-                            <SelectValue placeholder="Select period" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="ALL">All Time</SelectItem>
-                            {months.map((m) => (
-                                <SelectItem key={m} value={m}>
-                                    {format(parseISO(m + "-01"), "MMMM yyyy")}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+
+                    {/* Badge */}
                     {selectedMonth !== "ALL" && (
-                        <Badge variant="secondary" className="text-xs">
-                            {transactions.length} transactions
-                        </Badge>
+                        <div className="flex sm:justify-end">
+                            <Badge variant="secondary" className="text-xs w-fit">
+                                {transactions.length} transactions
+                            </Badge>
+                        </div>
                     )}
                 </CardContent>
             </Card>
-
             {/* ── KPI Cards ── */}
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <StatCard
