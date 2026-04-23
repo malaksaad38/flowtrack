@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, List, PlusCircle, Settings, Sparkles, PieChart } from "lucide-react";
+import { LayoutGrid, List, PlusCircle, Settings, PieChart } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 const NAV = [
   {
@@ -34,9 +35,7 @@ export function Sidebar() {
   return (
       <aside className="sticky top-0 h-screen w-64 flex flex-col border-r border-border/40 bg-background/60 backdrop-blur-xl">
       <div className="flex items-center gap-3 border-b border-border/40 px-6 py-6 transition-all duration-300 hover:opacity-80">
-        <div className="flex h-9 w-9 p-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-md shadow-primary/20 text-primary-foreground">
-          <Sparkles className="h-4 w-4" />
-        </div>
+        <Image src="/logo.png" alt="FlowTrack Logo" width={36} height={36} className="h-9 w-9 rounded-xl shadow-md shadow-primary/20 object-cover" />
         <span className="font-bold text-lg tracking-tight text-foreground">FlowTrack</span>
       </div>
 

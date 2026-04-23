@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, LayoutGrid, Sparkles, Tag, Zap } from "lucide-react";
 
 export const metadata = {
@@ -29,9 +30,7 @@ export default function HomePage() {
     <main className="flex min-h-screen flex-col bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-background to-background">
       <nav className="sticky top-0 z-50 flex items-center justify-between border-b border-border/40 bg-background/60 px-4 py-3 backdrop-blur-xl sm:px-6 md:px-10">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <Sparkles className="h-4 w-4 text-primary-foreground" />
-          </div>
+          <Image src="/logo.png" alt="FlowTrack Logo" width={32} height={32} className="h-8 w-8 rounded-lg shadow-sm object-cover" />
           <span className="font-bold text-foreground">FlowTrack</span>
         </div>
         <div className="flex items-center gap-2 sm:gap-3">

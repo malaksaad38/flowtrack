@@ -143,7 +143,7 @@ export function ExpenseForm() {
             <Input
               id="transaction-quick-input"
               type="text"
-              placeholder="Enter amount and note"
+              placeholder="Amount Category Note..."
               value={quickInput}
               onChange={(event) => setQuickInput(event.target.value)}
               autoComplete="off"

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, List, PlusCircle, Settings, PieChart } from "lucide-react";
+import { LayoutGrid, PlusCircle, Settings, PieChart } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -10,11 +10,6 @@ const NAV = [
     href: "/dashboard",
     label: "Cashbook",
     icon: LayoutGrid,
-  },
-  {
-    href: "/expenses",
-    label: "History",
-    icon: List,
   },
   {
     href: "/add",

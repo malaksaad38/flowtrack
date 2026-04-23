@@ -131,7 +131,7 @@ function DailySummary({ todayIn, todayOut }: DailySummaryProps) {
         <Card className="border border-zinc-200/80 dark:border-zinc-700/50 bg-white dark:bg-zinc-900 shadow-sm">
 
             <CardContent className="px-4  sm:px-5 sm:py-4">
-                <div className="flex items-center mb-3  gap-1.5 text-xs font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+                <div className="flex sm:hidden items-center mb-3  gap-1.5 text-xs font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
                     <CalendarDays className="h-3.5 w-3.5" />
                     Today
                 </div>
