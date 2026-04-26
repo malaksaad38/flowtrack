@@ -53,7 +53,7 @@ export function EntryModePreference() {
           <div
             className={cn(
               "rounded-xl border p-4 transition-colors",
-              !isManual ? "border-primary/40 bg-primary/5" : "border-border bg-background"
+              !isManual ? "border-primary bg-muted" : "border-border "
             )}
           >
             <div className="mb-2 flex items-center gap-2 text-sm font-medium">
@@ -68,7 +68,7 @@ export function EntryModePreference() {
           <div
             className={cn(
               "rounded-xl border p-4 transition-colors",
-              isManual ? "border-primary/40 bg-primary/5" : "border-border bg-background"
+              isManual ? "border-primary bg-muted" : "border-border "
             )}
           >
             <div className="mb-2 flex items-center gap-2 text-sm font-medium">
