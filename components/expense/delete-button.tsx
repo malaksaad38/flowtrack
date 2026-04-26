@@ -2,8 +2,17 @@
 
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Check, Trash2, X } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useAppStore } from "@/store/app-store";
 import { deleteTransaction as deleteFromIDB, addToSyncQueue } from "@/lib/indexeddb";
 import { useNetworkStatus } from "@/lib/use-network-status";
@@ -64,44 +73,47 @@ export function DeleteButton({ transactionId }: DeleteButtonProps) {
     setConfirm(false);
   }
 
-  if (confirm) {
-    return (
-      <div className="flex items-center gap-1">
-        <Button
-          id={`confirm-delete-${transactionId}`}
-          variant="ghost"
-          size="sm"
-          onClick={handleDelete}
-          disabled={mutation.isPending}
-          className="h-8 px-2 text-xs text-destructive hover:bg-destructive/10"
-        >
-          <Check className="h-3.5 w-3.5" />
-          {mutation.isPending ? "..." : "Delete"}
-        </Button>
-        <Button
-          id={`cancel-delete-${transactionId}`}
-          variant="ghost"
-          size="sm"
-          onClick={() => setConfirm(false)}
-          className="h-8 px-2 text-xs"
-        >
-          <X className="h-3.5 w-3.5" />
-          Cancel
-        </Button>
-      </div>
-    );
-  }
-
   return (
-    <Button
-      id={`delete-transaction-${transactionId}`}
-      variant="ghost"
-      size="sm"
-      onClick={() => setConfirm(true)}
-      className="h-8 w-8 p-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-      aria-label="Delete transaction"
-    >
-      <Trash2 className="h-3.5 w-3.5" />
-    </Button>
+    <Dialog open={confirm} onOpenChange={setConfirm}>
+      <DialogTrigger asChild>
+        <Button
+          id={`delete-transaction-${transactionId}`}
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+          aria-label="Delete transaction"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader>
+          <DialogTitle>Delete transaction</DialogTitle>
+          <DialogDescription>
+            This removes the entry from your list now and syncs the deletion when possible.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setConfirm(false)}
+            disabled={mutation.isPending}
+          >
+            Cancel
+          </Button>
+          <Button
+            id={`confirm-delete-${transactionId}`}
+            type="button"
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={mutation.isPending}
+          >
+            {mutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+            Delete
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

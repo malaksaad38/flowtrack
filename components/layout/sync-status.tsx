@@ -11,6 +11,7 @@
 import { useNetworkStatus } from "@/lib/use-network-status";
 import { useSyncStatus } from "@/lib/use-sync-status";
 import { processSyncQueue } from "@/lib/sync-engine";
+import { Button } from "@/components/ui/button";
 import {
   CloudOff,
   RefreshCw,
@@ -98,13 +99,15 @@ export function SyncStatusBar() {
                 {pending} {pending === 1 ? "item" : "items"} couldn&apos;t sync
               </p>
             </div>
-            <button
+            <Button
               onClick={() => processSyncQueue()}
-              className="shrink-0 rounded-lg bg-red-100 dark:bg-red-900/40 px-2.5 py-1 text-[10px] font-semibold text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-800/50 transition-colors"
+              variant="ghost"
+              size="sm"
+              className="shrink-0 bg-red-100 text-red-700 hover:bg-red-200 hover:text-red-800 dark:bg-red-900/40 dark:text-red-300 dark:hover:bg-red-800/50 dark:hover:text-red-200"
             >
               <RefreshCw className="h-3 w-3 inline mr-1" />
               Retry
-            </button>
+            </Button>
           </div>
         )}
 
