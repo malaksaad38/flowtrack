@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { format, parseISO, endOfMonth, startOfMonth, subMonths, differenceInDays } from "date-fns";
 import { CardContent, CardHeader, CardTitle, Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -10,6 +10,8 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { formatCurrency, type Transaction } from "@/lib/transactions";
+import { getAllTransactions, onTransactionsChange } from "@/lib/indexeddb";
+import { useAppStore } from "@/store/app-store";
 import { BarChart } from "@/components/charts/bar-chart";
 import { DonutChart } from "@/components/charts/donut-chart";
 import {
@@ -153,22 +155,53 @@ function CategoryRow({ label, value, total, index }: { label: string; value: num
 // ─── main component ──────────────────────────────────────────────────────────
 
 export function ReportsView({ initialTransactions }: ReportsViewProps) {
+    const hasLoadedTransactions = useAppStore((state) => state.hasLoadedTransactions);
+    const storedTransactions = useAppStore((state) => state.transactions);
+    const setTransactions = useAppStore((state) => state.setTransactions);
+    const activeTransactions = hasLoadedTransactions ? storedTransactions : initialTransactions;
+
+    useEffect(() => {
+        async function syncTransactionsFromIDB() {
+            try {
+                const idbTransactions = await getAllTransactions();
+                if (idbTransactions.length > 0) {
+                    setTransactions(idbTransactions as unknown as Transaction[]);
+                } else {
+                    setTransactions(initialTransactions);
+                }
+            } catch {
+                setTransactions(initialTransactions);
+            }
+        }
+
+        void syncTransactionsFromIDB();
+        return onTransactionsChange(() => {
+            void syncTransactionsFromIDB();
+        });
+    }, [initialTransactions, setTransactions]);
+
     const months = useMemo(() => {
         const uniqueMonths = new Set<string>();
-        initialTransactions.forEach((t) => {
+        activeTransactions.forEach((t) => {
             uniqueMonths.add(format(new Date(t.date), "yyyy-MM"));
         });
         return Array.from(uniqueMonths).sort().reverse();
-    }, [initialTransactions]);
+    }, [activeTransactions]);
 
     const [selectedMonth, setSelectedMonth] = useState(months.length > 0 ? months[0] : format(new Date(), "yyyy-MM"));
     const [dailyVisibleCount, setDailyVisibleCount] = useState(10);
 
+    useEffect(() => {
+        if (selectedMonth !== "ALL" && months.length > 0 && !months.includes(selectedMonth)) {
+            setSelectedMonth(months[0]);
+        }
+    }, [months, selectedMonth]);
+
     // current period transactions
     const transactions = useMemo(() => {
-        if (selectedMonth === "ALL") return initialTransactions;
-        return initialTransactions.filter((t) => format(new Date(t.date), "yyyy-MM") === selectedMonth);
-    }, [initialTransactions, selectedMonth]);
+        if (selectedMonth === "ALL") return activeTransactions;
+        return activeTransactions.filter((t) => format(new Date(t.date), "yyyy-MM") === selectedMonth);
+    }, [activeTransactions, selectedMonth]);
 
     // previous period transactions (for delta)
     const prevTransactions = useMemo(() => {
@@ -176,8 +209,8 @@ export function ReportsView({ initialTransactions }: ReportsViewProps) {
         const [y, m] = selectedMonth.split("-").map(Number);
         const prevDate = subMonths(new Date(y, m - 1, 1), 1);
         const prevKey = format(prevDate, "yyyy-MM");
-        return initialTransactions.filter((t) => format(new Date(t.date), "yyyy-MM") === prevKey);
-    }, [initialTransactions, selectedMonth]);
+        return activeTransactions.filter((t) => format(new Date(t.date), "yyyy-MM") === prevKey);
+    }, [activeTransactions, selectedMonth]);
 
     const summary = useMemo(() => {
         return transactions.reduce(
@@ -271,8 +304,8 @@ export function ReportsView({ initialTransactions }: ReportsViewProps) {
     const topMerchants = useMemo(() => {
         const merchants = new Map<string, { count: number; total: number }>();
         transactions.forEach((t) => {
-            if (t.type === "OUT" && t.description) {
-                const key = t.description.trim();
+            if (t.type === "OUT" && t.note) {
+                const key = t.note.trim();
                 const existing = merchants.get(key) ?? { count: 0, total: 0 };
                 existing.count += 1;
                 existing.total += t.amount;

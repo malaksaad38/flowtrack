@@ -10,6 +10,8 @@ const DB_NAME = "flowtrack-offline";
 const DB_VERSION = 1;
 const STORE_TRANSACTIONS = "transactions";
 const STORE_SYNC_QUEUE = "syncQueue";
+const transactionListeners = new Set<() => void>();
+const syncQueueListeners = new Set<(count: number) => void>();
 
 export type SyncAction = "create" | "update" | "delete";
 
@@ -92,6 +94,30 @@ function requestToPromise<T>(req: IDBRequest<T>): Promise<T> {
   });
 }
 
+function emitTransactionsChanged() {
+  transactionListeners.forEach((listener) => listener());
+}
+
+async function emitSyncQueueChanged() {
+  const count = await getSyncQueueCount();
+  syncQueueListeners.forEach((listener) => listener(count));
+}
+
+export function onTransactionsChange(listener: () => void): () => void {
+  transactionListeners.add(listener);
+  return () => transactionListeners.delete(listener);
+}
+
+export function onSyncQueueChange(
+  listener: (count: number) => void
+): () => void {
+  syncQueueListeners.add(listener);
+  void getSyncQueueCount()
+    .then((count) => listener(count))
+    .catch(() => listener(0));
+  return () => syncQueueListeners.delete(listener);
+}
+
 // ──────────────────────────────────────────
 // Transaction store operations
 // ──────────────────────────────────────────
@@ -109,6 +135,7 @@ export async function putTransaction(
   const { store, done } = await tx(STORE_TRANSACTIONS, "readwrite");
   store.put(transaction);
   await done;
+  emitTransactionsChanged();
 }
 
 export async function putAllTransactions(
@@ -121,12 +148,14 @@ export async function putAllTransactions(
     store.put(t);
   }
   await done;
+  emitTransactionsChanged();
 }
 
 export async function deleteTransaction(id: string): Promise<void> {
   const { store, done } = await tx(STORE_TRANSACTIONS, "readwrite");
   store.delete(id);
   await done;
+  emitTransactionsChanged();
 }
 
 export async function updateTransaction(
@@ -139,6 +168,7 @@ export async function updateTransaction(
     store.put({ ...existing, ...changes, id });
   }
   await done;
+  emitTransactionsChanged();
 }
 
 // ──────────────────────────────────────────
@@ -151,6 +181,7 @@ export async function addToSyncQueue(
   const { store, done } = await tx(STORE_SYNC_QUEUE, "readwrite");
   store.add(item);
   await done;
+  void emitSyncQueueChanged();
 }
 
 export async function getAllSyncQueueItems(): Promise<SyncQueueItem[]> {
@@ -164,6 +195,7 @@ export async function removeSyncQueueItem(id: number): Promise<void> {
   const { store, done } = await tx(STORE_SYNC_QUEUE, "readwrite");
   store.delete(id);
   await done;
+  void emitSyncQueueChanged();
 }
 
 export async function updateSyncQueueItem(
@@ -172,12 +204,14 @@ export async function updateSyncQueueItem(
   const { store, done } = await tx(STORE_SYNC_QUEUE, "readwrite");
   store.put(item);
   await done;
+  void emitSyncQueueChanged();
 }
 
 export async function clearSyncQueue(): Promise<void> {
   const { store, done } = await tx(STORE_SYNC_QUEUE, "readwrite");
   store.clear();
   await done;
+  void emitSyncQueueChanged();
 }
 
 export async function getSyncQueueCount(): Promise<number> {

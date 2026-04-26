@@ -10,6 +10,8 @@
 
 import {
   getAllSyncQueueItems,
+  getSyncQueueCount,
+  onSyncQueueChange,
   removeSyncQueueItem,
   updateSyncQueueItem,
   putTransaction,
@@ -219,10 +221,44 @@ export function initSyncEngine(): void {
   if (initialized || typeof window === "undefined") return;
   initialized = true;
 
+  void getSyncQueueCount()
+    .then((count) => {
+      currentPending = count;
+      if (!navigator.onLine) {
+        broadcast("offline", count);
+      } else if (count > 0) {
+        broadcast("syncing", count);
+      }
+    })
+    .catch(() => {
+      currentPending = 0;
+    });
+
+  onSyncQueueChange((pending) => {
+    currentPending = pending;
+
+    if (!navigator.onLine) {
+      broadcast("offline", pending);
+      return;
+    }
+
+    if (pending === 0 && !isSyncing) {
+      if (currentStatus !== "error") {
+        broadcast("idle", 0);
+      }
+      return;
+    }
+
+    if (pending > 0 && !isSyncing) {
+      broadcast("syncing", pending);
+      void processSyncQueue();
+    }
+  });
+
   // Sync when coming back online
   window.addEventListener("online", () => {
     console.log("[SyncEngine] Network reconnected — starting sync");
-    processSyncQueue();
+    void processSyncQueue();
   });
 
   window.addEventListener("offline", () => {
@@ -235,5 +271,5 @@ export function initSyncEngine(): void {
   }
 
   // Try to process any pending items on startup
-  processSyncQueue();
+  void processSyncQueue();
 }

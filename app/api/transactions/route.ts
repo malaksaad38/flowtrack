@@ -46,7 +46,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid date." }, { status: 400 });
     }
 
-    const parsed =
+    const parsed: {
+      amount: number;
+      type: TransactionType;
+      category: string;
+      note: string | null;
+    } =
       typeof body.input === "string" && body.input.trim()
         ? parseQuickTransaction(body.input, body.type === "IN" ? "IN" : "OUT")
         : {

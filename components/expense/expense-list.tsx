@@ -8,6 +8,14 @@ import { Button } from "@/components/ui/button";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -17,10 +25,9 @@ import {
 import {
     ArrowDownRight,
     ArrowUpRight,
+    ArrowUpDown,
     CalendarDays,
-    ChevronLeft,
-    ChevronRight,
-    ChartColumnIncreasing,
+    Check,
     CircleDollarSign,
     FolderKanban,
     Loader2,
@@ -32,6 +39,7 @@ import { formatCurrency, type Transaction } from "@/lib/transactions";
 
 type DatePreset = "ALL" | "TODAY" | "YESTERDAY" | "THIS_MONTH" | "LAST_7_DAYS" | "CUSTOM";
 type PageSize = "10" | "20" | "30" | "ALL";
+type SortOption = "NEWEST" | "OLDEST" | "AMOUNT_HIGH" | "AMOUNT_LOW";
 
 interface ExpenseListProps {
   isRefreshing?: boolean;
@@ -106,6 +114,51 @@ function matchesDatePreset(transactionDate: Date, preset: DatePreset, rangeStart
   return true;
 }
 
+function getTransactionTime(transaction: Transaction) {
+  const primaryTime = new Date(transaction.date).getTime();
+  if (!Number.isNaN(primaryTime)) {
+    return primaryTime;
+  }
+
+  const createdTime = new Date(transaction.createdAt).getTime();
+  return Number.isNaN(createdTime) ? 0 : createdTime;
+}
+
+function sortTransactions(transactions: Transaction[], sortBy: SortOption) {
+  const sorted = [...transactions];
+
+  sorted.sort((left, right) => {
+    if (sortBy === "AMOUNT_HIGH") {
+      return right.amount - left.amount || getTransactionTime(right) - getTransactionTime(left);
+    }
+
+    if (sortBy === "AMOUNT_LOW") {
+      return left.amount - right.amount || getTransactionTime(right) - getTransactionTime(left);
+    }
+
+    if (sortBy === "OLDEST") {
+      return getTransactionTime(left) - getTransactionTime(right);
+    }
+
+    return getTransactionTime(right) - getTransactionTime(left);
+  });
+
+  return sorted;
+}
+
+function getSortLabel(sortBy: SortOption) {
+  switch (sortBy) {
+    case "OLDEST":
+      return "Oldest";
+    case "AMOUNT_HIGH":
+      return "High";
+    case "AMOUNT_LOW":
+      return "Low";
+    default:
+      return "Newest";
+  }
+}
+
 export function ExpenseList({
   isRefreshing = false,
   limit,
@@ -119,6 +172,7 @@ export function ExpenseList({
 
   const [datePreset, setDatePreset] = useState<DatePreset>("ALL");
   const [selectedCategory, setSelectedCategory] = useState("ALL");
+  const [sortBy, setSortBy] = useState<SortOption>("NEWEST");
   const [pageSize, setPageSize] = useState<PageSize>("10");
   const [page, setPage] = useState(1);
   const [rangeStart, setRangeStart] = useState("");
@@ -140,13 +194,15 @@ export function ExpenseList({
   const transactions = useMemo(() => {
     const normalizedCategory = selectedCategory.trim();
 
-    return baseTransactions.filter((transaction) => {
+    const filteredTransactions = baseTransactions.filter((transaction) => {
       const date = new Date(transaction.date);
       const dateMatched = matchesDatePreset(date, datePreset, rangeStart, rangeEnd);
       const categoryMatched = normalizedCategory === "ALL" || transaction.category === normalizedCategory;
       return dateMatched && categoryMatched;
     });
-  }, [baseTransactions, datePreset, rangeStart, rangeEnd, selectedCategory]);
+
+    return sortTransactions(filteredTransactions, sortBy);
+  }, [baseTransactions, datePreset, rangeStart, rangeEnd, selectedCategory, sortBy]);
 
   const canPaginate = typeof limit !== "number";
   const pageSizeNumber = pageSize === "ALL" ? transactions.length || 1 : Number(pageSize);
@@ -162,7 +218,7 @@ export function ExpenseList({
     if (canPaginate) {
       setPage(1);
     }
-  }, [filterType, datePreset, selectedCategory, rangeStart, rangeEnd, pageSize, canPaginate]);
+  }, [filterType, datePreset, selectedCategory, sortBy, rangeStart, rangeEnd, pageSize, canPaginate]);
 
   useEffect(() => {
     if (canPaginate && page > totalPages) {
@@ -228,7 +284,7 @@ export function ExpenseList({
                         )}
                     </div>
                 </div>
-            </div>
+                    </div>
 
             {/* Filters */}
             {showFilters && (
@@ -257,16 +313,62 @@ export function ExpenseList({
                             </Button>
 
                         ))}
-                        <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            className="lg:hidden ml-auto"
-                            onClick={() => setShowMore((p) => !p)}
-                        >
-                            <SlidersHorizontal className="h-4 w-4 mr-1" />
-                            More
-                        </Button>
+                        <div className="ml-auto flex items-center gap-2 lg:hidden">
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        type="button"
+                                        size="icon"
+                                        variant="outline"
+                                        aria-label={`Sort transactions: ${getSortLabel(sortBy)}`}
+                                    >
+                                        <ArrowUpDown />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent align="end" className="w-44 p-1.5">
+                                    <PopoverHeader className="px-2 pt-1 pb-1.5">
+                                        <PopoverTitle className="text-xs">Sort</PopoverTitle>
+                                        <PopoverDescription className="text-[11px]">
+                                            {getSortLabel(sortBy)}
+                                        </PopoverDescription>
+                                    </PopoverHeader>
+                                    <div className="space-y-0.5">
+                                        {([
+                                            ["NEWEST", "Newest"],
+                                            ["OLDEST", "Oldest"],
+                                            ["AMOUNT_HIGH", "High"],
+                                            ["AMOUNT_LOW", "Low"],
+                                        ] as const).map(([value, label]) => (
+                                            <Button
+                                                key={value}
+                                                type="button"
+                                                variant="ghost"
+
+                                                className={`h-8 w-full justify-between px-2 text-xs ${
+                                                    sortBy === value ? "bg-muted text-foreground" : "text-muted-foreground"
+                                                }`}
+                                                onClick={() => setSortBy(value)}
+                                            >
+                                                {label}
+                                                <Check
+                                                    className={`h-3.5 w-3.5 ${
+                                                        sortBy === value ? "opacity-100" : "opacity-0"
+                                                    }`}
+                                                />
+                                            </Button>
+                                        ))}
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
+                            <Button
+                                type="button"
+                                size="icon"
+                                variant="outline"
+                                onClick={() => setShowMore((p) => !p)}
+                            >
+                                <SlidersHorizontal  />
+                            </Button>
+                        </div>
 
                         {/* Category */}
                         <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -285,7 +387,6 @@ export function ExpenseList({
                                 </SelectContent>
                             </Select>
                         </div>
-
                         {/* More button (mobile only) */}
                     </div>
 
@@ -410,7 +511,57 @@ export function ExpenseList({
                 <thead className="border-b border-border/50 bg-muted/40 text-xs font-bold uppercase tracking-wider text-muted-foreground">
                   <tr>
                     <th className="w-24 px-5 py-4">Type</th>
-                    <th className="w-32 px-5 py-4">Date</th>
+                    <th className="w-32 px-5 py-4">
+                      <div className="flex items-center gap-2">
+                        <span>Date</span>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 rounded-md text-muted-foreground hover:text-foreground"
+                              aria-label={`Sort transactions: ${getSortLabel(sortBy)}`}
+                            >
+                              <ArrowUpDown className="h-3.5 w-3.5" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent align="start" className="w-44 p-1.5">
+                            <PopoverHeader className="px-2 pt-1 pb-1.5">
+                              <PopoverTitle className="text-xs">Sort</PopoverTitle>
+                              <PopoverDescription className="text-[11px]">
+                                {getSortLabel(sortBy)}
+                              </PopoverDescription>
+                            </PopoverHeader>
+                            <div className="space-y-0.5">
+                              {([
+                                ["NEWEST", "Newest"],
+                                ["OLDEST", "Oldest"],
+                                ["AMOUNT_HIGH", "High"],
+                                ["AMOUNT_LOW", "Low"],
+                              ] as const).map(([value, label]) => (
+                                <Button
+                                  key={value}
+                                  type="button"
+                                  variant="ghost"
+                                  className={`h-8 w-full justify-between px-2 text-xs ${
+                                    sortBy === value ? "bg-muted text-foreground" : "text-muted-foreground"
+                                  }`}
+                                  onClick={() => setSortBy(value)}
+                                >
+                                  {label}
+                                  <Check
+                                    className={`h-3.5 w-3.5 ${
+                                      sortBy === value ? "opacity-100" : "opacity-0"
+                                    }`}
+                                  />
+                                </Button>
+                              ))}
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    </th>
                     <th className="px-5 py-4">Category</th>
                     <th className="px-5 py-4">Note</th>
                     <th className="w-36 px-5 py-4 text-right">Amount</th>

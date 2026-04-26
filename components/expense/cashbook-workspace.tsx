@@ -23,7 +23,11 @@ import {
     formatCurrency,
     type Transaction,
 } from "@/lib/transactions";
-import { getAllTransactions, putAllTransactions } from "@/lib/indexeddb";
+import {
+  getAllTransactions,
+  onTransactionsChange,
+  putAllTransactions,
+} from "@/lib/indexeddb";
 import { useNetworkStatus } from "@/lib/use-network-status";
 
 const TRANSACTIONS_QUERY_KEY = ["transactions"];
@@ -216,9 +220,9 @@ export function CashbookWorkspace({
         enabled: isOnline,
     });
 
-    // Load from IndexedDB on mount (instant offline-first data)
+    // Keep the store aligned with IndexedDB changes from any page or sync pass.
     useEffect(() => {
-        async function loadFromIDB() {
+        async function syncTransactionsFromIDB() {
             try {
                 const idbTransactions = await getAllTransactions();
                 if (idbTransactions.length > 0) {
@@ -230,8 +234,12 @@ export function CashbookWorkspace({
                 setTransactions(initialTransactions);
             }
         }
-        loadFromIDB();
-    }, []);
+
+        void syncTransactionsFromIDB();
+        return onTransactionsChange(() => {
+            void syncTransactionsFromIDB();
+        });
+    }, [initialTransactions, setTransactions]);
 
     // When server data arrives, update both state and IndexedDB
     useEffect(() => {
