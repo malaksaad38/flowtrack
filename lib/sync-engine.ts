@@ -22,6 +22,8 @@ import {
 
 const MAX_RETRIES = 5;
 
+export const TRANSACTIONS_SYNCED_EVENT = "flowtrack:transactions-synced";
+
 export type SyncStatus = "idle" | "syncing" | "error" | "offline";
 
 export type SyncListener = (status: SyncStatus, pending: number) => void;
@@ -47,6 +49,11 @@ function broadcast(status: SyncStatus, pending: number) {
   currentStatus = status;
   currentPending = pending;
   listeners.forEach((fn) => fn(status, pending));
+}
+
+function notifyTransactionsSynced() {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event(TRANSACTIONS_SYNCED_EVENT));
 }
 
 /**
@@ -101,6 +108,7 @@ export async function processSyncQueue(): Promise<void> {
     if (remaining.length === 0) {
       // Full sync complete — re-fetch from server to reconcile
       await reconcileWithServer();
+      notifyTransactionsSynced();
       broadcast("idle", 0);
     } else {
       broadcast("error", remaining.length);

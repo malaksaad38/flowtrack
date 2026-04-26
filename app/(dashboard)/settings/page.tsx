@@ -1,4 +1,5 @@
 import { ModeToggle } from "@/components/mode-toggle";
+import { EntryModePreference } from "@/components/settings/entry-mode-preference";
 import { getSession } from "@/lib/session";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LogoutButton } from "@/components/logout-button";
@@ -36,6 +37,8 @@ export default async function SettingsPage() {
             <ModeToggle />
           </CardContent>
         </Card>
+
+        <EntryModePreference />
 
         <Card>
           <CardHeader>

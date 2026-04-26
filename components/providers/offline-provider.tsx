@@ -6,10 +6,17 @@
  */
 
 import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { registerServiceWorker } from "@/lib/sw-register";
-import { initSyncEngine, processSyncQueue } from "@/lib/sync-engine";
+import {
+  initSyncEngine,
+  processSyncQueue,
+  TRANSACTIONS_SYNCED_EVENT,
+} from "@/lib/sync-engine";
 
 export function OfflineProvider({ children }: { children: React.ReactNode }) {
+  const queryClient = useQueryClient();
+
   useEffect(() => {
     // Register service worker
     registerServiceWorker();
@@ -25,7 +32,17 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
         }
       });
     }
-  }, []);
+
+    const handleTransactionsSynced = () => {
+      void queryClient.invalidateQueries({ queryKey: ["transactions"] });
+    };
+
+    window.addEventListener(TRANSACTIONS_SYNCED_EVENT, handleTransactionsSynced);
+
+    return () => {
+      window.removeEventListener(TRANSACTIONS_SYNCED_EVENT, handleTransactionsSynced);
+    };
+  }, [queryClient]);
 
   return <>{children}</>;
 }
