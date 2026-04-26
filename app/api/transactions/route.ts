@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 
   const transactions = await prisma.transaction.findMany({
     where,
-    orderBy: [{ date: "desc" }, { createdAt: "desc" }],
+    orderBy: [{ createdAt: "desc" }, { date: "desc" }],
   });
 
   return NextResponse.json(transactions);

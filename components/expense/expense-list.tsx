@@ -115,13 +115,13 @@ function matchesDatePreset(transactionDate: Date, preset: DatePreset, rangeStart
 }
 
 function getTransactionTime(transaction: Transaction) {
-  const primaryTime = new Date(transaction.date).getTime();
+  const primaryTime = new Date(transaction.createdAt).getTime();
   if (!Number.isNaN(primaryTime)) {
     return primaryTime;
   }
 
-  const createdTime = new Date(transaction.createdAt).getTime();
-  return Number.isNaN(createdTime) ? 0 : createdTime;
+  const fallbackTime = new Date(transaction.date).getTime();
+  return Number.isNaN(fallbackTime) ? 0 : fallbackTime;
 }
 
 function sortTransactions(transactions: Transaction[], sortBy: SortOption) {
