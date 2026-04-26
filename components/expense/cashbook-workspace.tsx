@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
     ArrowDownRight,
@@ -27,6 +27,7 @@ import {
   getAllTransactions,
   onTransactionsChange,
   putAllTransactions,
+  readTransactionsSnapshot,
 } from "@/lib/indexeddb";
 import { useNetworkStatus } from "@/lib/use-network-status";
 
@@ -219,6 +220,13 @@ export function CashbookWorkspace({
         // Don't refetch when offline
         enabled: isOnline,
     });
+
+    useLayoutEffect(() => {
+        const snapshot = readTransactionsSnapshot();
+        if (snapshot && snapshot.length > 0) {
+            setTransactions(snapshot as unknown as Transaction[]);
+        }
+    }, [setTransactions]);
 
     // Keep the store aligned with IndexedDB changes from any page or sync pass.
     useEffect(() => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { format, parseISO, endOfMonth, startOfMonth, subMonths, differenceInDays } from "date-fns";
 import { CardContent, CardHeader, CardTitle, Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -10,7 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { formatCurrency, type Transaction } from "@/lib/transactions";
-import { getAllTransactions, onTransactionsChange } from "@/lib/indexeddb";
+import { getAllTransactions, onTransactionsChange, readTransactionsSnapshot } from "@/lib/indexeddb";
 import { useAppStore } from "@/store/app-store";
 import { BarChart } from "@/components/charts/bar-chart";
 import { DonutChart } from "@/components/charts/donut-chart";
@@ -159,6 +159,13 @@ export function ReportsView({ initialTransactions }: ReportsViewProps) {
     const storedTransactions = useAppStore((state) => state.transactions);
     const setTransactions = useAppStore((state) => state.setTransactions);
     const activeTransactions = hasLoadedTransactions ? storedTransactions : initialTransactions;
+
+    useLayoutEffect(() => {
+        const snapshot = readTransactionsSnapshot();
+        if (snapshot && snapshot.length > 0) {
+            setTransactions(snapshot as unknown as Transaction[]);
+        }
+    }, [setTransactions]);
 
     useEffect(() => {
         async function syncTransactionsFromIDB() {

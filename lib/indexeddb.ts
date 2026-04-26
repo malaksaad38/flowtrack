@@ -10,6 +10,7 @@ const DB_NAME = "flowtrack-offline";
 const DB_VERSION = 1;
 const STORE_TRANSACTIONS = "transactions";
 const STORE_SYNC_QUEUE = "syncQueue";
+const TRANSACTIONS_SNAPSHOT_KEY = "flowtrack-transactions-snapshot";
 const transactionListeners = new Set<() => void>();
 const syncQueueListeners = new Set<(count: number) => void>();
 
@@ -98,6 +99,35 @@ function emitTransactionsChanged() {
   transactionListeners.forEach((listener) => listener());
 }
 
+function writeTransactionsSnapshot(
+  transactions: Record<string, unknown>[]
+): void {
+  if (typeof window === "undefined") return;
+
+  try {
+    window.localStorage.setItem(
+      TRANSACTIONS_SNAPSHOT_KEY,
+      JSON.stringify(transactions)
+    );
+  } catch {
+    // Ignore snapshot write failures and keep IndexedDB as the source of truth.
+  }
+}
+
+export function readTransactionsSnapshot(): Record<string, unknown>[] | null {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const raw = window.localStorage.getItem(TRANSACTIONS_SNAPSHOT_KEY);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
 async function emitSyncQueueChanged() {
   const count = await getSyncQueueCount();
   syncQueueListeners.forEach((listener) => listener(count));
@@ -135,6 +165,10 @@ export async function putTransaction(
   const { store, done } = await tx(STORE_TRANSACTIONS, "readwrite");
   store.put(transaction);
   await done;
+  const snapshot = (await getAllTransactions()).filter(
+    (item): item is Record<string, unknown> => typeof item === "object" && item !== null
+  );
+  writeTransactionsSnapshot(snapshot);
   emitTransactionsChanged();
 }
 
@@ -148,6 +182,7 @@ export async function putAllTransactions(
     store.put(t);
   }
   await done;
+  writeTransactionsSnapshot(transactions);
   emitTransactionsChanged();
 }
 
@@ -155,6 +190,10 @@ export async function deleteTransaction(id: string): Promise<void> {
   const { store, done } = await tx(STORE_TRANSACTIONS, "readwrite");
   store.delete(id);
   await done;
+  const snapshot = (await getAllTransactions()).filter(
+    (item): item is Record<string, unknown> => typeof item === "object" && item !== null
+  );
+  writeTransactionsSnapshot(snapshot);
   emitTransactionsChanged();
 }
 
@@ -168,6 +207,10 @@ export async function updateTransaction(
     store.put({ ...existing, ...changes, id });
   }
   await done;
+  const snapshot = (await getAllTransactions()).filter(
+    (item): item is Record<string, unknown> => typeof item === "object" && item !== null
+  );
+  writeTransactionsSnapshot(snapshot);
   emitTransactionsChanged();
 }
 
