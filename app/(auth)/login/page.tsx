@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Lock, LogIn, Mail } from "lucide-react";
 import { Label } from "@/components/ui/label";
@@ -33,7 +32,6 @@ function GoogleIcon() {
 }
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -57,8 +55,9 @@ export default function LoginPage() {
         return;
       }
 
-      router.push("/dashboard");
-      router.refresh();
+      // Hard redirect so the session cookie is fully committed before the
+      // proxy's auth check runs on the incoming /dashboard request.
+      window.location.href = "/dashboard";
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
