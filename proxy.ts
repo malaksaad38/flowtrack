@@ -12,8 +12,8 @@ export async function proxy(request: NextRequest) {
         headers: request.headers,
     });
 
-    // Redirect authenticated users away from login/signup
-    if (session && AUTH_ONLY.some((p) => pathname.startsWith(p))) {
+    // Logged-in users opening the app (or auth screens) go straight to the dashboard.
+    if (session && (pathname === "/" || AUTH_ONLY.some((p) => pathname.startsWith(p)))) {
         return NextResponse.redirect(new URL("/dashboard", request.url));
     }
 
@@ -28,5 +28,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/dashboard/:path*", "/expenses/:path*", "/add/:path*", "/wallet/:path*", "/login", "/signup"],
+    matcher: ["/", "/dashboard/:path*", "/expenses/:path*", "/add/:path*", "/wallet/:path*", "/login", "/signup"],
 };

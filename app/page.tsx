@@ -1,6 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
+import { redirect } from "next/navigation";
 import { ArrowRight, LayoutGrid, Sparkles, Tag, Zap } from "lucide-react";
+import { getSession } from "@/lib/session";
+import { RedirectIfAuthenticated } from "@/components/auth/redirect-if-authenticated";
 
 export const metadata = {
   title: "FlowTrack - Cashbook for daily money tracking",
@@ -25,9 +28,13 @@ const FEATURES = [
   },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const session = await getSession();
+  if (session) redirect("/dashboard");
+
   return (
     <main className="flex min-h-screen flex-col bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-background to-background">
+      <RedirectIfAuthenticated />
       <nav className="sticky top-0 z-50 flex items-center justify-between border-b border-border/40 bg-background/60 px-4 py-3 backdrop-blur-xl sm:px-6 md:px-10">
         <div className="flex items-center gap-2">
           <Image src="/logo.png" alt="FlowTrack Logo" width={32} height={32} className="h-8 w-8 rounded-lg shadow-sm object-cover" />

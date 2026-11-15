@@ -9,13 +9,13 @@
  *  - Images/icons: Cache-first
  */
 
-const CACHE_NAME = "flowtrack-v1";
-const STATIC_CACHE = "flowtrack-static-v1";
-const API_CACHE = "flowtrack-api-v1";
+const CACHE_NAME = "flowtrack-v2";
+const STATIC_CACHE = "flowtrack-static-v2";
+const API_CACHE = "flowtrack-api-v2";
 
-// App shell resources to precache
+// Icons and manifest only. The home page is not precached so a logged-in
+// open is not stuck on a saved marketing page.
 const PRECACHE_URLS = [
-  "/",
   "/manifest.webmanifest",
   "/icon-192x192.png",
   "/icon-512x512.png",
@@ -116,8 +116,8 @@ async function networkFirstStrategy(request, cacheName) {
   try {
     const networkResponse = await fetch(request);
 
-    // Only cache successful responses
-    if (networkResponse.ok) {
+    // Skip redirects so a logged-in hop from / to /dashboard is not stored as the home page.
+    if (networkResponse.ok && !networkResponse.redirected) {
       const cache = await caches.open(cacheName);
       cache.put(request, networkResponse.clone());
     }
